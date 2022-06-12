@@ -14,14 +14,17 @@ func ExamplePredicate() {
     isSmallerThanSix := func(e int) bool {
         return e < 6
     }
-    p := collections.NewPredicate(isLargerThanThree).And(isSmallerThanSix)
+    isEven := func(e int) bool {
+        return e%2 == 0
+    }
+    p := collections.NewPredicate(isLargerThanThree).And(isSmallerThanSix).Or(isEven).Negate()
     if p(element) {
-        fmt.Printf("%d is larger than 3 and smaller than 6", element)
+        fmt.Printf("%d is not larger than 3 and smaller than 6 or even", element)
     } else {
-        fmt.Printf("%d is not larger than 3 and smaller than 6", element)
+        fmt.Printf("%d is larger than 3 and smaller than 6 or even", element)
     }
 
-    // Output: 5 is larger than 3 and smaller than 6
+    // Output: 5 is larger than 3 and smaller than 6 or even
 }
 
 func ExamplePredicate_And() {
