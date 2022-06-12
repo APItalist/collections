@@ -1,4 +1,4 @@
-# MIME for APItalist
+# Collections for APItalist
 
 This repository provides collections (lists, maps, etc) for APItalist.
 
