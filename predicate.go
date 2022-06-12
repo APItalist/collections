@@ -1,5 +1,10 @@
 package collections
 
+// NewPredicate creates a predicate from the specified function.
+func NewPredicate[E any](f func(E) bool) Predicate[E] {
+    return f
+}
+
 // Predicate is a utility to make a boolean decision about an element, for example for a filter. Converting a simple
 // function to a predicate offers the ability to add boolean operations, such as creating and-relations with other
 // predicates.

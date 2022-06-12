@@ -14,7 +14,7 @@ func ExamplePredicate() {
     isSmallerThanSix := func(e int) bool {
         return e < 6
     }
-    p := collections.Predicate[int](isLargerThanThree).And(isSmallerThanSix)
+    p := collections.NewPredicate(isLargerThanThree).And(isSmallerThanSix)
     if p(element) {
         fmt.Printf("%d is larger than 3 and smaller than 6", element)
     } else {
