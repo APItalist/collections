@@ -13,13 +13,13 @@ func NewSliceListMutable[E lang.Ordered](elements ...E) MutableList[E] {
     copy(data, elements)
     return &sliceListMutable[E]{
         data,
-        &sync.Mutex{},
+        &sync.RWMutex{},
     }
 }
 
 type sliceListMutable[E lang.Ordered] struct {
     data []E
-    lock *sync.Mutex
+    lock *sync.RWMutex
 }
 
 func (s *sliceListMutable[E]) RemoveAt(index uint) error {
@@ -42,20 +42,20 @@ func (s *sliceListMutable[E]) Iterator() MutableIterator[E] {
 }
 
 func (s sliceListMutable[E]) IsEmpty() bool {
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     return len(s.data) == 0
 }
 
 func (s sliceListMutable[E]) Size() uint {
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     return uint(len(s.data))
 }
 
 func (s sliceListMutable[E]) ToSlice() []E {
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     result := make([]E, len(s.data))
     copy(result, s.data)
     return result
@@ -68,8 +68,8 @@ func (s sliceListMutable[E]) Contains(e E) bool {
 
 func (s sliceListMutable[E]) Get(index uint) (E, error) {
     var emptyResult E
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     if index >= uint(len(s.data)) {
         return emptyResult, ErrIndexOutOfBounds
     }
@@ -142,16 +142,19 @@ func (s *sliceListMutable[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
 }
 
 func (s *sliceListMutable[E]) RemoveIf(p Predicate[E]) {
-    for i, element := range s.data {
-        if p(element) {
-            s.data = append(s.data[:i], s.data[i+1:]...)
+    s.lock.Lock()
+    defer s.lock.Unlock()
+    tmpSlice := s.data[:0]
+    for _, e := range s.data {
+        if !p(e) {
+            tmpSlice = append(tmpSlice, e)
         }
     }
+    s.data = tmpSlice
 }
 
 func (s *sliceListMutable[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
-    // TODO implement me
-    panic("implement me")
+    s.RemoveIf(Predicate[E](c.Contains).Negate())
 }
 
 func (s *sliceListMutable[E]) AddAt(index uint, element E) error {

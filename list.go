@@ -7,7 +7,6 @@ import (
 type List[E lang.Ordered, T any, I Iterator[E]] interface {
     Collection[E, I]
 
-    Contains(E) bool
     Get(index uint) (E, error)
     IndexOf(E) (uint, error)
     LastIndexOf(E) (uint, error)

@@ -5,6 +5,7 @@ import "github.com/apitalist/lang"
 type Collection[E lang.Ordered, I Iterator[E]] interface {
     Iterable[E, I]
 
+    Contains(E) bool
     IsEmpty() bool
     Size() uint
     ToSlice() []E

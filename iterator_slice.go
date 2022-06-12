@@ -9,33 +9,33 @@ import (
 type sliceIterator[E lang.Ordered] struct {
     backingSlice *sliceListMutable[E]
     index        uint
-    lock         *sync.Mutex
+    lock         *sync.RWMutex
 }
 
 func (s sliceIterator[E]) ForEachRemaining(f Consumer[E]) error {
-    s.lock.Lock()
-    defer s.lock.Unlock()
-    for {
-        if err := f(s.backingSlice.data[s.index]); err != nil {
-            return err
-        }
-        if s.index == uint(len(s.backingSlice.data)) {
+    for s.HasNext() {
+        element, err := s.Next()
+        if err != nil {
+            // No more elements remaining
             return nil
         }
-        s.index++
+        if err := f(element); err != nil {
+            return err
+        }
     }
+    return nil
 }
 
 func (s sliceIterator[E]) HasNext() bool {
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     return s.index < uint(len(s.backingSlice.data))-1
 }
 
 func (s sliceIterator[E]) Next() (E, error) {
     var emptyResult E
-    s.lock.Lock()
-    defer s.lock.Unlock()
+    s.lock.RLock()
+    defer s.lock.RUnlock()
     if s.index >= uint(len(s.backingSlice.data))-1 {
         return emptyResult, ErrIndexOutOfBounds
     }
