@@ -95,13 +95,13 @@ func (s sliceListMutable[E]) SubList(from, to uint) MutableList[E] {
     panic("implement me")
 }
 
-func (s sliceListMutable[E]) Add(e E) {
+func (s *sliceListMutable[E]) Add(e E) {
     s.lock.Lock()
     defer s.lock.Unlock()
     s.data = append(s.data, e)
 }
 
-func (s sliceListMutable[E]) AddAll(c Collection[E, MutableIterator[E]]) {
+func (s *sliceListMutable[E]) AddAll(c Collection[E, MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -113,13 +113,13 @@ func (s sliceListMutable[E]) AddAll(c Collection[E, MutableIterator[E]]) {
     }
 }
 
-func (s sliceListMutable[E]) Clear() {
+func (s *sliceListMutable[E]) Clear() {
     s.lock.Lock()
     defer s.lock.Unlock()
     s.data = nil
 }
 
-func (s sliceListMutable[E]) Remove(e E) {
+func (s *sliceListMutable[E]) Remove(e E) {
     s.lock.Lock()
     defer s.lock.Unlock()
     for i, entry := range s.data {
@@ -129,7 +129,7 @@ func (s sliceListMutable[E]) Remove(e E) {
     }
 }
 
-func (s sliceListMutable[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
+func (s *sliceListMutable[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -141,7 +141,7 @@ func (s sliceListMutable[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
     }
 }
 
-func (s sliceListMutable[E]) RemoveIf(p Predicate[E]) {
+func (s *sliceListMutable[E]) RemoveIf(p Predicate[E]) {
     for i, element := range s.data {
         if p(element) {
             s.data = append(s.data[:i], s.data[i+1:]...)
@@ -149,12 +149,12 @@ func (s sliceListMutable[E]) RemoveIf(p Predicate[E]) {
     }
 }
 
-func (s sliceListMutable[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
+func (s *sliceListMutable[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
     // TODO implement me
     panic("implement me")
 }
 
-func (s sliceListMutable[E]) AddAt(index uint, element E) error {
+func (s *sliceListMutable[E]) AddAt(index uint, element E) error {
     s.lock.Lock()
     defer s.lock.Unlock()
     if index > uint(len(s.data)) {
@@ -168,7 +168,7 @@ func (s sliceListMutable[E]) AddAt(index uint, element E) error {
     return nil
 }
 
-func (s sliceListMutable[E]) Set(index uint, element E) error {
+func (s *sliceListMutable[E]) Set(index uint, element E) error {
     s.lock.Lock()
     defer s.lock.Unlock()
     if index >= uint(len(s.data)) {
@@ -178,7 +178,7 @@ func (s sliceListMutable[E]) Set(index uint, element E) error {
     return nil
 }
 
-func (s sliceListMutable[E]) Sort(f Comparator[E]) {
+func (s *sliceListMutable[E]) Sort(f Comparator[E]) {
     s.lock.Lock()
     defer s.lock.Unlock()
     sort.SliceStable(
