@@ -97,3 +97,58 @@ func ExampleSliceList_String() {
 
     // Output: [a, b, c]
 }
+
+func ExampleSliceList_Iterator() {
+    list := collections.NewSliceList[string]("a", "b", "c")
+
+    iterator := list.Iterator()
+    for iterator.HasNext() {
+        item, err := iterator.Next()
+        if err != nil {
+            // This should never happen except when the list is concurrently changed.
+            panic(err)
+        }
+        fmt.Println(item)
+    }
+
+    // Output: a
+    // b
+    // c
+}
+
+func ExampleSliceListIterator() {
+    list := collections.NewSliceList[string]("a", "b", "c")
+
+    iterator := list.Iterator()
+    for iterator.HasNext() {
+        item, err := iterator.Next()
+        if err != nil {
+            // This should never happen except when the list is concurrently changed.
+            panic(err)
+        }
+        fmt.Println(item)
+    }
+
+    // Output: a
+    // b
+    // c
+}
+
+func ExampleSliceListIterator_Remove() {
+    list := collections.NewSliceList[string]("a", "b", "c")
+
+    iterator := list.Iterator()
+    for iterator.HasNext() {
+        item, err := iterator.Next()
+        if err != nil {
+            // This should never happen except when the list is concurrently changed.
+            panic(err)
+        }
+        if item == "b" {
+            iterator.Remove()
+        }
+    }
+    fmt.Println(list)
+
+    // Output: [a, c]
+}

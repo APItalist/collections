@@ -180,11 +180,14 @@ func (s SliceList[E]) String() string {
     return "[" + strings.Join(result, ", ") + "]"
 }
 
+// SliceListIterator is an interator looping over a SliceList. You can create it by calling Iterator() on a SliceList.
 type SliceListIterator[E lang.Ordered] struct {
     backingSlice *SliceList[E]
     index        int
 }
 
+// ForEachRemaining executes the specified consumer function on each remaining elements until no more elements remain
+// in the iterator or an error occurs.
 func (s *SliceListIterator[E]) ForEachRemaining(f Consumer[E]) error {
     for s.HasNext() {
         element, err := s.Next()
@@ -199,10 +202,12 @@ func (s *SliceListIterator[E]) ForEachRemaining(f Consumer[E]) error {
     return nil
 }
 
+// HasNext returns true if the iterator has more elements remaining.
 func (s SliceListIterator[E]) HasNext() bool {
     return s.index < len(*s.backingSlice)-1
 }
 
+// Next retrieves the next element. If no more elements are remaining, an ErrIndexOutOfBounds error is returned.
 func (s *SliceListIterator[E]) Next() (E, error) {
     var emptyResult E
     if s.index >= len(*s.backingSlice)-1 {
@@ -212,6 +217,7 @@ func (s *SliceListIterator[E]) Next() (E, error) {
     return (*s.backingSlice)[s.index], nil
 }
 
+// Remove removes the current element from the underlying SliceList.
 func (s *SliceListIterator[E]) Remove() error {
     if s.index >= len(*s.backingSlice) {
         return ErrIndexOutOfBounds
