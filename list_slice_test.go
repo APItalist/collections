@@ -88,3 +88,12 @@ func ExampleSliceList_IsEmpty() {
     // Output: The list is empty.
     // The list is not empty.
 }
+
+func ExampleSliceList_String() {
+    list := collections.NewSliceList[string]("a", "b", "c")
+
+    // SliceList has a helper to print out nicely as a string:
+    fmt.Println(list)
+
+    // Output: [a, b, c]
+}
