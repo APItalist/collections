@@ -22,8 +22,27 @@ func New[E comparable](elements ...E) *Slice[E] {
 	return &result
 }
 
-// Slice is a slice-backed implementation from the MutableList interface. In order to guarantee proper
-// operation it should always be used as a pointer.
+// NewFromSlice converts an already existing go slice into a Slice pointer.
+func NewFromSlice[E comparable](existingSlice []E) *Slice[E] {
+	return (*Slice[E])(&existingSlice)
+}
+
+// Slice is a slice-backed implementation from the MutableList interface.
+//
+// In order to guarantee this type works correctly, you should always use it as a pointer.
+//
+// Correct:
+//
+//     var mySlice *slice.Slice
+//
+// Incorrect:
+//
+//     var mySlice slice.Slice
+//
+// You can can create this Slice using the New() function, or manually by converting an underlying slice:
+//
+//     myData := []string{"a", "b", "c"}
+//     mySlice := *slice.Slice(&myData)
 type Slice[E comparable] []E
 
 // RemoveAt removes the element at the specified index. If the specified index does not exist a
@@ -213,7 +232,8 @@ func (s Slice[E]) String() string {
 	return "[" + strings.Join(result, ", ") + "]"
 }
 
-// SliceIterator is an interator looping over a Slice. You can create it by calling Iterator() on a Slice.
+// SliceIterator is an interator looping over a Slice. You can create it by calling Iterator() or MutableIterator() on a
+// Slice.
 type SliceIterator[E comparable] struct {
 	backingSlice *Slice[E]
 	index        int

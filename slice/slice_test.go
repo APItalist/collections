@@ -13,6 +13,12 @@ func Example() {
 	// The list variable will contain a typed slice:
 	list := slice.New("a", "b", "c")
 
+	// You can also convert an existing slice:
+	existingSlice := []string{"a", "b", "c"}
+	list = (*slice.Slice[string])(&existingSlice)
+	// Instead of the code above, you can also use this simplified function:
+	list = slice.NewFromSlice(existingSlice)
+
 	// We can add new items to it:
 	list.Add("d")
 
@@ -62,6 +68,22 @@ func ExampleNew() {
 	// Output: [a]
 	// [b]
 	// [c]
+}
+
+func ExampleNewFromSlice() {
+	existingSlice := []string{"a", "b", "c"}
+	// Here we convert an existing slice into a *Slice representation without copying the elements. Be careful about
+	// modifying existingSlice afterwards!
+	list := slice.NewFromSlice[string](existingSlice)
+
+	// We can modify the underlying slice:
+	existingSlice[0] = "d"
+	// Or we can modify the abstraction:
+	_ = list.Set(1, "f")
+
+	fmt.Println(list)
+
+	// Output: [d, f, c]
 }
 
 func ExampleSlice_Add() {
@@ -313,7 +335,60 @@ func ExampleSlice_IsEmpty() {
 	// List 2 is empty.
 }
 
-func ExampleSliceIterator() {
+func ExampleSlice_ToSlice() {
+	list := slice.New("a", "b", "c")
+	s := list.ToSlice()
+	fmt.Println(s[0])
+	// Output: a
+}
+
+func ExampleSlice_SubList() {
+	list := slice.New(1, 2, 3, 4, 5, 6, 7)
+	subList, err := list.SubList(1, 3)
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+	if err := subList.Set(0, 10); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(list)
+
+	// Output: [1, 10, 3, 4, 5, 6, 7]
+}
+
+func ExampleSlice_SubList_addingItems() {
+	list := slice.New(1, 2, 3, 4, 5, 6, 7)
+	subList, err := list.SubList(1, 3)
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+
+	// Adding an item to the sublist will overwrite the parent list.
+	subList.Add(10)
+	fmt.Println(list)
+
+	// Output: [1, 2, 3, 10, 5, 6, 7]
+}
+
+func ExampleSlice_SubList_removingItems() {
+	list := slice.New(1, 2, 3, 4, 5, 6, 7)
+	subList, err := list.SubList(1, 3)
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+
+	// Adding an item to the sublist will overwrite the parent list.
+	subList.Remove(2)
+	fmt.Println(list)
+
+	// Output: [1, 2, 3, 10, 5, 6, 7]
+}
+
+func ExampleSliceIterator_hasNext() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.Iterator()
@@ -325,6 +400,22 @@ func ExampleSliceIterator() {
 		}
 		fmt.Println(item)
 	}
+
+	// Output: a
+	// b
+	// c
+}
+
+func ExampleSliceIterator_forEachRemaining() {
+	list := slice.New[string]("a", "b", "c")
+
+	iterator := list.Iterator()
+	_ = iterator.ForEachRemaining(
+		func(item string) error {
+			fmt.Println(item)
+			return nil
+		},
+	)
 
 	// Output: a
 	// b
