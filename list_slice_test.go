@@ -6,7 +6,7 @@ import (
     "github.com/apitalist/collections"
 )
 
-func ExampleNewSliceList() {
+func ExampleNewSlice() {
     // Create an empty list by specifying the type:
     list1 := collections.NewSlice[string]()
     list1.Add("a")
@@ -26,7 +26,7 @@ func ExampleNewSliceList() {
     // [c]
 }
 
-func ExampleSliceList_Add() {
+func ExampleSlice_Add() {
     // Create a new list
     var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
 
@@ -44,7 +44,7 @@ func ExampleSliceList_Add() {
     // Output: abcde
 }
 
-func ExampleSliceList_Remove() {
+func ExampleSlice_Remove() {
     // Create a new list
     var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
 
@@ -62,7 +62,7 @@ func ExampleSliceList_Remove() {
     // Output: abd
 }
 
-func ExampleSliceList_Contains() {
+func ExampleSlice_Contains() {
     var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
 
     if list.Contains("c") {
@@ -74,7 +74,7 @@ func ExampleSliceList_Contains() {
     // Output: The list contains 'c'.
 }
 
-func ExampleSliceList_IsEmpty() {
+func ExampleSlice_IsEmpty() {
     var list collections.MutableList[string] = collections.NewSlice[string]()
 
     if list.IsEmpty() {
@@ -89,7 +89,7 @@ func ExampleSliceList_IsEmpty() {
     // The list is not empty.
 }
 
-func ExampleSliceList_String() {
+func ExampleSlice_String() {
     list := collections.NewSlice[string]("a", "b", "c")
 
     // Slice has a helper to print out nicely as a string:
@@ -98,7 +98,7 @@ func ExampleSliceList_String() {
     // Output: [a, b, c]
 }
 
-func ExampleSliceList_Iterator() {
+func ExampleSlice_Iterator() {
     list := collections.NewSlice[string]("a", "b", "c")
 
     iterator := list.Iterator()
@@ -116,7 +116,7 @@ func ExampleSliceList_Iterator() {
     // c
 }
 
-func ExampleSliceListIterator() {
+func ExampleSliceIterator() {
     list := collections.NewSlice[string]("a", "b", "c")
 
     iterator := list.Iterator()
@@ -134,7 +134,7 @@ func ExampleSliceListIterator() {
     // c
 }
 
-func ExampleSliceListIterator_Remove() {
+func ExampleSliceIterator_Remove() {
     list := collections.NewSlice[string]("a", "b", "c")
 
     iterator := list.Iterator()

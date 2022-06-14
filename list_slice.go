@@ -30,7 +30,7 @@ func (s *Slice[E]) RemoveAt(index uint) error {
 }
 
 func (s *Slice[E]) Iterator() MutableIterator[E] {
-    return &SliceListIterator[E]{
+    return &SliceIterator[E]{
         s,
         -1,
     }
@@ -178,15 +178,15 @@ func (s Slice[E]) String() string {
     return "[" + strings.Join(result, ", ") + "]"
 }
 
-// SliceListIterator is an interator looping over a Slice. You can create it by calling Iterator() on a Slice.
-type SliceListIterator[E comparable] struct {
+// SliceIterator is an interator looping over a Slice. You can create it by calling Iterator() on a Slice.
+type SliceIterator[E comparable] struct {
     backingSlice *Slice[E]
     index        int
 }
 
 // ForEachRemaining executes the specified consumer function on each remaining elements until no more elements remain
 // in the iterator or an error occurs.
-func (s *SliceListIterator[E]) ForEachRemaining(f Consumer[E]) error {
+func (s *SliceIterator[E]) ForEachRemaining(f Consumer[E]) error {
     for s.HasNext() {
         element, err := s.Next()
         if err != nil {
@@ -201,12 +201,12 @@ func (s *SliceListIterator[E]) ForEachRemaining(f Consumer[E]) error {
 }
 
 // HasNext returns true if the iterator has more elements remaining.
-func (s SliceListIterator[E]) HasNext() bool {
+func (s SliceIterator[E]) HasNext() bool {
     return s.index < len(*s.backingSlice)-1
 }
 
 // Next retrieves the next element. If no more elements are remaining, an ErrIndexOutOfBounds error is returned.
-func (s *SliceListIterator[E]) Next() (E, error) {
+func (s *SliceIterator[E]) Next() (E, error) {
     var emptyResult E
     if s.index >= len(*s.backingSlice)-1 {
         return emptyResult, ErrIndexOutOfBounds
@@ -216,7 +216,7 @@ func (s *SliceListIterator[E]) Next() (E, error) {
 }
 
 // Remove removes the current element from the underlying Slice.
-func (s *SliceListIterator[E]) Remove() error {
+func (s *SliceIterator[E]) Remove() error {
     if s.index >= len(*s.backingSlice) {
         return ErrIndexOutOfBounds
     }
