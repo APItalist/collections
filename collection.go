@@ -1,8 +1,6 @@
 package collections
 
-import "github.com/apitalist/lang"
-
-type Collection[E lang.Ordered, I Iterator[E]] interface {
+type Collection[E comparable, I Iterator[E]] interface {
     Iterable[E, I]
 
     Contains(E) bool
@@ -11,7 +9,7 @@ type Collection[E lang.Ordered, I Iterator[E]] interface {
     ToSlice() []E
 }
 
-type MutableCollection[E lang.Ordered, I MutableIterator[E]] interface {
+type MutableCollection[E comparable, I MutableIterator[E]] interface {
     Collection[E, I]
 
     Add(E)
@@ -23,7 +21,7 @@ type MutableCollection[E lang.Ordered, I MutableIterator[E]] interface {
     RetainAll(Collection[E, I])
 }
 
-type ImmutableCollection[E lang.Ordered, T any, I Iterator[E]] interface {
+type ImmutableCollection[E comparable, T any, I Iterator[E]] interface {
     Collection[E, I]
 
     WithAdded(E) T

@@ -1,10 +1,6 @@
 package collections
 
-import (
-    "github.com/apitalist/lang"
-)
-
-type List[E lang.Ordered, T any, I Iterator[E]] interface {
+type List[E comparable, T any, I Iterator[E]] interface {
     Collection[E, I]
 
     Get(index uint) (E, error)
@@ -13,7 +9,7 @@ type List[E lang.Ordered, T any, I Iterator[E]] interface {
     SubList(from, to uint) (T, error)
 }
 
-type MutableList[E lang.Ordered] interface {
+type MutableList[E comparable] interface {
     List[E, MutableList[E], MutableIterator[E]]
     MutableCollection[E, MutableIterator[E]]
 
@@ -23,7 +19,7 @@ type MutableList[E lang.Ordered] interface {
     RemoveAt(index uint) error
 }
 
-type ImmutableList[E lang.Ordered] interface {
+type ImmutableList[E comparable] interface {
     List[E, ImmutableList[E], Iterator[E]]
     ImmutableCollection[E, ImmutableList[E], Iterator[E]]
 

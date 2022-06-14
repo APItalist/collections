@@ -4,26 +4,24 @@ import (
     "fmt"
     "sort"
     "strings"
-
-    "github.com/apitalist/lang"
 )
 
-// NewSliceList creates a new slice-backed list, optionally filled with the specified elements. Slice lists are not
+// NewSlice creates a new slice-backed list, optionally filled with the specified elements. Slice lists are not
 // concurrency-safe, so locks should be applied if concurrent list operations are needed. Alternatively, immutable
 // lists can be used for concurrent access.
-func NewSliceList[E lang.Ordered](elements ...E) *SliceList[E] {
+func NewSlice[E comparable](elements ...E) *Slice[E] {
     data := make([]E, len(elements))
     copy(data, elements)
-    result := make(SliceList[E], len(elements))
+    result := make(Slice[E], len(elements))
     copy(result, elements)
     return &result
 }
 
-// SliceList is a slice-backed implementation from the MutableList interface. In order to guarantee proper
-// operation i should always be used as a pointer.
-type SliceList[E lang.Ordered] []E
+// Slice is a slice-backed implementation from the MutableList interface. In order to guarantee proper
+// operation it should always be used as a pointer.
+type Slice[E comparable] []E
 
-func (s *SliceList[E]) RemoveAt(index uint) error {
+func (s *Slice[E]) RemoveAt(index uint) error {
     if index >= uint(len(*s)) {
         return ErrIndexOutOfBounds
     }
@@ -31,31 +29,31 @@ func (s *SliceList[E]) RemoveAt(index uint) error {
     return nil
 }
 
-func (s *SliceList[E]) Iterator() MutableIterator[E] {
+func (s *Slice[E]) Iterator() MutableIterator[E] {
     return &SliceListIterator[E]{
         s,
         -1,
     }
 }
 
-func (s *SliceList[E]) IsEmpty() bool {
+func (s *Slice[E]) IsEmpty() bool {
     return len(*s) == 0
 }
 
-func (s *SliceList[E]) Size() uint {
+func (s *Slice[E]) Size() uint {
     return uint(len(*s))
 }
 
-func (s *SliceList[E]) ToSlice() []E {
+func (s *Slice[E]) ToSlice() []E {
     return *s
 }
 
-func (s SliceList[E]) Contains(e E) bool {
+func (s Slice[E]) Contains(e E) bool {
     _, err := s.IndexOf(e)
     return err == nil
 }
 
-func (s *SliceList[E]) Get(index uint) (E, error) {
+func (s *Slice[E]) Get(index uint) (E, error) {
     var emptyResult E
     if index >= uint(len(*s)) {
         return emptyResult, ErrIndexOutOfBounds
@@ -63,7 +61,7 @@ func (s *SliceList[E]) Get(index uint) (E, error) {
     return (*s)[index], nil
 }
 
-func (s *SliceList[E]) IndexOf(e E) (uint, error) {
+func (s *Slice[E]) IndexOf(e E) (uint, error) {
     for i, elem := range *s {
         if elem == e {
             return uint(i), nil
@@ -72,7 +70,7 @@ func (s *SliceList[E]) IndexOf(e E) (uint, error) {
     return 0, ErrElementNotFound
 }
 
-func (s *SliceList[E]) LastIndexOf(e E) (uint, error) {
+func (s *Slice[E]) LastIndexOf(e E) (uint, error) {
     for i := len(*s) - 1; i >= 0; i-- {
         elem := (*s)[i]
         if elem == e {
@@ -82,7 +80,7 @@ func (s *SliceList[E]) LastIndexOf(e E) (uint, error) {
     return 0, ErrElementNotFound
 }
 
-func (s *SliceList[E]) SubList(from, to uint) (MutableList[E], error) {
+func (s *Slice[E]) SubList(from, to uint) (MutableList[E], error) {
     if to >= uint(len(*s)) {
         return nil, ErrIndexOutOfBounds
     }
@@ -90,11 +88,11 @@ func (s *SliceList[E]) SubList(from, to uint) (MutableList[E], error) {
     return &subSlice, nil
 }
 
-func (s *SliceList[E]) Add(e E) {
+func (s *Slice[E]) Add(e E) {
     *s = append(*s, e)
 }
 
-func (s SliceList[E]) AddAll(c Collection[E, MutableIterator[E]]) {
+func (s Slice[E]) AddAll(c Collection[E, MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -106,11 +104,11 @@ func (s SliceList[E]) AddAll(c Collection[E, MutableIterator[E]]) {
     }
 }
 
-func (s *SliceList[E]) Clear() {
+func (s *Slice[E]) Clear() {
     *s = nil
 }
 
-func (s *SliceList[E]) Remove(e E) {
+func (s *Slice[E]) Remove(e E) {
     for i, entry := range *s {
         if entry == e {
             *s = append((*s)[:i], (*s)[i+1:]...)
@@ -118,7 +116,7 @@ func (s *SliceList[E]) Remove(e E) {
     }
 }
 
-func (s SliceList[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
+func (s Slice[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -130,7 +128,7 @@ func (s SliceList[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
     }
 }
 
-func (s *SliceList[E]) RemoveIf(p Predicate[E]) {
+func (s *Slice[E]) RemoveIf(p Predicate[E]) {
     tmpSlice := (*s)[:0]
     for _, e := range *s {
         if !p(e) {
@@ -140,11 +138,11 @@ func (s *SliceList[E]) RemoveIf(p Predicate[E]) {
     *s = tmpSlice
 }
 
-func (s *SliceList[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
+func (s *Slice[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
     s.RemoveIf(Predicate[E](c.Contains).Negate())
 }
 
-func (s *SliceList[E]) AddAt(index uint, element E) error {
+func (s *Slice[E]) AddAt(index uint, element E) error {
     if index > uint(len(*s)) {
         return ErrIndexOutOfBounds
     }
@@ -156,7 +154,7 @@ func (s *SliceList[E]) AddAt(index uint, element E) error {
     return nil
 }
 
-func (s *SliceList[E]) Set(index uint, element E) error {
+func (s *Slice[E]) Set(index uint, element E) error {
     if index >= uint(len(*s)) {
         return ErrIndexOutOfBounds
     }
@@ -164,7 +162,7 @@ func (s *SliceList[E]) Set(index uint, element E) error {
     return nil
 }
 
-func (s *SliceList[E]) Sort(f Comparator[E]) {
+func (s *Slice[E]) Sort(f Comparator[E]) {
     sort.SliceStable(
         *s, func(i, j int) bool {
             return f((*s)[i], (*s)[j])
@@ -172,7 +170,7 @@ func (s *SliceList[E]) Sort(f Comparator[E]) {
     )
 }
 
-func (s SliceList[E]) String() string {
+func (s Slice[E]) String() string {
     result := make([]string, len(s))
     for i, e := range s {
         result[i] = fmt.Sprintf("%v", e)
@@ -180,9 +178,9 @@ func (s SliceList[E]) String() string {
     return "[" + strings.Join(result, ", ") + "]"
 }
 
-// SliceListIterator is an interator looping over a SliceList. You can create it by calling Iterator() on a SliceList.
-type SliceListIterator[E lang.Ordered] struct {
-    backingSlice *SliceList[E]
+// SliceListIterator is an interator looping over a Slice. You can create it by calling Iterator() on a Slice.
+type SliceListIterator[E comparable] struct {
+    backingSlice *Slice[E]
     index        int
 }
 
@@ -217,7 +215,7 @@ func (s *SliceListIterator[E]) Next() (E, error) {
     return (*s.backingSlice)[s.index], nil
 }
 
-// Remove removes the current element from the underlying SliceList.
+// Remove removes the current element from the underlying Slice.
 func (s *SliceListIterator[E]) Remove() error {
     if s.index >= len(*s.backingSlice) {
         return ErrIndexOutOfBounds
