@@ -1,15 +1,17 @@
-package collections
+package slice
 
 import (
     "fmt"
     "sort"
     "strings"
+
+    "github.com/apitalist/collections"
 )
 
-// NewSlice creates a new slice-backed list, optionally filled with the specified elements. Slice lists are not
+// New creates a new slice-backed list, optionally filled with the specified elements. Slice lists are not
 // concurrency-safe, so locks should be applied if concurrent list operations are needed. Alternatively, immutable
 // lists can be used for concurrent access.
-func NewSlice[E comparable](elements ...E) *Slice[E] {
+func New[E comparable](elements ...E) *Slice[E] {
     data := make([]E, len(elements))
     copy(data, elements)
     result := make(Slice[E], len(elements))
@@ -23,13 +25,13 @@ type Slice[E comparable] []E
 
 func (s *Slice[E]) RemoveAt(index uint) error {
     if index >= uint(len(*s)) {
-        return ErrIndexOutOfBounds
+        return collections.ErrIndexOutOfBounds
     }
     *s = append((*s)[:index], (*s)[index+1:]...)
     return nil
 }
 
-func (s *Slice[E]) Iterator() MutableIterator[E] {
+func (s *Slice[E]) Iterator() collections.MutableIterator[E] {
     return &SliceIterator[E]{
         s,
         -1,
@@ -56,7 +58,7 @@ func (s Slice[E]) Contains(e E) bool {
 func (s *Slice[E]) Get(index uint) (E, error) {
     var emptyResult E
     if index >= uint(len(*s)) {
-        return emptyResult, ErrIndexOutOfBounds
+        return emptyResult, collections.ErrIndexOutOfBounds
     }
     return (*s)[index], nil
 }
@@ -67,7 +69,7 @@ func (s *Slice[E]) IndexOf(e E) (uint, error) {
             return uint(i), nil
         }
     }
-    return 0, ErrElementNotFound
+    return 0, collections.ErrElementNotFound
 }
 
 func (s *Slice[E]) LastIndexOf(e E) (uint, error) {
@@ -77,12 +79,12 @@ func (s *Slice[E]) LastIndexOf(e E) (uint, error) {
             return uint(i), nil
         }
     }
-    return 0, ErrElementNotFound
+    return 0, collections.ErrElementNotFound
 }
 
-func (s *Slice[E]) SubList(from, to uint) (MutableList[E], error) {
+func (s *Slice[E]) SubList(from, to uint) (collections.MutableList[E], error) {
     if to >= uint(len(*s)) {
-        return nil, ErrIndexOutOfBounds
+        return nil, collections.ErrIndexOutOfBounds
     }
     subSlice := (*s)[from:to]
     return &subSlice, nil
@@ -92,7 +94,7 @@ func (s *Slice[E]) Add(e E) {
     *s = append(*s, e)
 }
 
-func (s Slice[E]) AddAll(c Collection[E, MutableIterator[E]]) {
+func (s Slice[E]) AddAll(c collections.Collection[E, collections.MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -116,7 +118,7 @@ func (s *Slice[E]) Remove(e E) {
     }
 }
 
-func (s Slice[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
+func (s Slice[E]) RemoveAll(c collections.Collection[E, collections.MutableIterator[E]]) {
     iterator := c.Iterator()
     for iterator.HasNext() {
         e, err := iterator.Next()
@@ -128,7 +130,7 @@ func (s Slice[E]) RemoveAll(c Collection[E, MutableIterator[E]]) {
     }
 }
 
-func (s *Slice[E]) RemoveIf(p Predicate[E]) {
+func (s *Slice[E]) RemoveIf(p collections.Predicate[E]) {
     tmpSlice := (*s)[:0]
     for _, e := range *s {
         if !p(e) {
@@ -138,13 +140,13 @@ func (s *Slice[E]) RemoveIf(p Predicate[E]) {
     *s = tmpSlice
 }
 
-func (s *Slice[E]) RetainAll(c Collection[E, MutableIterator[E]]) {
-    s.RemoveIf(Predicate[E](c.Contains).Negate())
+func (s *Slice[E]) RetainAll(c collections.Collection[E, collections.MutableIterator[E]]) {
+    s.RemoveIf(collections.Predicate[E](c.Contains).Negate())
 }
 
 func (s *Slice[E]) AddAt(index uint, element E) error {
     if index > uint(len(*s)) {
-        return ErrIndexOutOfBounds
+        return collections.ErrIndexOutOfBounds
     }
     if index == uint(len(*s)) {
         *s = append(*s, element)
@@ -156,13 +158,13 @@ func (s *Slice[E]) AddAt(index uint, element E) error {
 
 func (s *Slice[E]) Set(index uint, element E) error {
     if index >= uint(len(*s)) {
-        return ErrIndexOutOfBounds
+        return collections.ErrIndexOutOfBounds
     }
     (*s)[index] = element
     return nil
 }
 
-func (s *Slice[E]) Sort(f Comparator[E]) {
+func (s *Slice[E]) Sort(f collections.Comparator[E]) {
     sort.SliceStable(
         *s, func(i, j int) bool {
             return f((*s)[i], (*s)[j])
@@ -186,7 +188,7 @@ type SliceIterator[E comparable] struct {
 
 // ForEachRemaining executes the specified consumer function on each remaining elements until no more elements remain
 // in the iterator or an error occurs.
-func (s *SliceIterator[E]) ForEachRemaining(f Consumer[E]) error {
+func (s *SliceIterator[E]) ForEachRemaining(f collections.Consumer[E]) error {
     for s.HasNext() {
         element, err := s.Next()
         if err != nil {
@@ -209,7 +211,7 @@ func (s SliceIterator[E]) HasNext() bool {
 func (s *SliceIterator[E]) Next() (E, error) {
     var emptyResult E
     if s.index >= len(*s.backingSlice)-1 {
-        return emptyResult, ErrIndexOutOfBounds
+        return emptyResult, collections.ErrIndexOutOfBounds
     }
     s.index++
     return (*s.backingSlice)[s.index], nil
@@ -218,7 +220,7 @@ func (s *SliceIterator[E]) Next() (E, error) {
 // Remove removes the current element from the underlying Slice.
 func (s *SliceIterator[E]) Remove() error {
     if s.index >= len(*s.backingSlice) {
-        return ErrIndexOutOfBounds
+        return collections.ErrIndexOutOfBounds
     }
     *s.backingSlice = append((*s.backingSlice)[:s.index], (*s.backingSlice)[s.index+1:]...)
     return nil

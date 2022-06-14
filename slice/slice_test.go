@@ -1,23 +1,24 @@
-package collections_test
+package slice_test
 
 import (
     "fmt"
 
     "github.com/apitalist/collections"
+    "github.com/apitalist/collections/slice"
 )
 
-func ExampleNewSlice() {
+func ExampleNew() {
     // Create an empty list by specifying the type:
-    list1 := collections.NewSlice[string]()
+    list1 := slice.New[string]()
     list1.Add("a")
     fmt.Println(list1)
 
     // Create a list by specifying some elements:
-    list2 := collections.NewSlice("b")
+    list2 := slice.New("b")
     fmt.Println(list2)
 
     // Create a list and explicitly assign it to a MutableList interface type:
-    var list3 collections.MutableList[string] = collections.NewSlice[string]()
+    var list3 collections.MutableList[string] = slice.New[string]()
     list3.Add("c")
     fmt.Println(list3)
 
@@ -28,7 +29,7 @@ func ExampleNewSlice() {
 
 func ExampleSlice_Add() {
     // Create a new list
-    var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
+    var list collections.MutableList[string] = slice.New("a", "b", "c", "d")
 
     // Add an element to the list
     list.Add("e")
@@ -46,7 +47,7 @@ func ExampleSlice_Add() {
 
 func ExampleSlice_Remove() {
     // Create a new list
-    var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
+    var list collections.MutableList[string] = slice.New("a", "b", "c", "d")
 
     // Add an element to the list
     list.Remove("c")
@@ -63,7 +64,7 @@ func ExampleSlice_Remove() {
 }
 
 func ExampleSlice_Contains() {
-    var list collections.MutableList[string] = collections.NewSlice("a", "b", "c", "d")
+    var list collections.MutableList[string] = slice.New("a", "b", "c", "d")
 
     if list.Contains("c") {
         fmt.Println("The list contains 'c'.")
@@ -75,7 +76,7 @@ func ExampleSlice_Contains() {
 }
 
 func ExampleSlice_IsEmpty() {
-    var list collections.MutableList[string] = collections.NewSlice[string]()
+    var list collections.MutableList[string] = slice.New[string]()
 
     if list.IsEmpty() {
         fmt.Println("The list is empty.")
@@ -90,7 +91,7 @@ func ExampleSlice_IsEmpty() {
 }
 
 func ExampleSlice_String() {
-    list := collections.NewSlice[string]("a", "b", "c")
+    list := slice.New[string]("a", "b", "c")
 
     // Slice has a helper to print out nicely as a string:
     fmt.Println(list)
@@ -99,7 +100,7 @@ func ExampleSlice_String() {
 }
 
 func ExampleSlice_Iterator() {
-    list := collections.NewSlice[string]("a", "b", "c")
+    list := slice.New[string]("a", "b", "c")
 
     iterator := list.Iterator()
     for iterator.HasNext() {
@@ -117,7 +118,7 @@ func ExampleSlice_Iterator() {
 }
 
 func ExampleSliceIterator() {
-    list := collections.NewSlice[string]("a", "b", "c")
+    list := slice.New[string]("a", "b", "c")
 
     iterator := list.Iterator()
     for iterator.HasNext() {
@@ -135,7 +136,7 @@ func ExampleSliceIterator() {
 }
 
 func ExampleSliceIterator_Remove() {
-    list := collections.NewSlice[string]("a", "b", "c")
+    list := slice.New[string]("a", "b", "c")
 
     iterator := list.Iterator()
     for iterator.HasNext() {
