@@ -3,6 +3,7 @@ package slice_test
 import (
 	"errors"
 	"fmt"
+	"strings"
 
 	"github.com/apitalist/collections"
 	"github.com/apitalist/collections/slice"
@@ -82,21 +83,50 @@ func ExampleSlice_Add() {
 }
 
 func ExampleSlice_Remove() {
-	// Create a new list
-	var list collections.MutableList[string] = slice.New("a", "b", "c", "d")
+	list := slice.New("a", "b", "c", "b", "d")
 
-	// Add an element to the list
-	list.Remove("c")
+	// Remove all b's from the list:
+	list.Remove("b")
 
-	// Iterate over the list. We ignore the returning error since our output function never fails.
-	_ = list.Iterator().ForEachRemaining(
-		func(e string) error {
-			fmt.Print(e)
-			return nil
+	fmt.Println(list)
+	// Output: [a, c, d]
+}
+
+func ExampleSlice_RemoveAll() {
+	list1 := slice.New("a", "b", "c", "b", "d")
+	list2 := slice.New("b", "c")
+
+	list1.RemoveAll(list2)
+
+	fmt.Println(list1)
+
+	// Output: [a, d]
+}
+
+func ExampleSlice_RemoveIf() {
+	list := slice.New(1, 2, 3, 4, 5, 6, 7)
+
+	list.RemoveIf(
+		func(item int) bool {
+			// Remove all even items
+			return item%2 == 0
 		},
 	)
 
-	// Output: abd
+	fmt.Println(list)
+
+	// Output: [1, 3, 5, 7]
+}
+
+func ExampleSlice_RetainAll() {
+	list1 := slice.New(1, 2, 3, 4, 5, 6, 7)
+	list2 := slice.New(2, 3, 4, 8)
+
+	list1.RetainAll(list2)
+
+	fmt.Println(list1)
+
+	// Output: [2, 3, 4]
 }
 
 func ExampleSlice_Contains() {
@@ -109,21 +139,6 @@ func ExampleSlice_Contains() {
 	}
 
 	// Output: The list contains 'c'.
-}
-
-func ExampleSlice_IsEmpty() {
-	var list collections.MutableList[string] = slice.New[string]()
-
-	if list.IsEmpty() {
-		fmt.Println("The list is empty.")
-	}
-	list.Add("a")
-	if !list.IsEmpty() {
-		fmt.Println("The list is not empty.")
-	}
-
-	// Output: The list is empty.
-	// The list is not empty.
 }
 
 func ExampleSlice_String() {
@@ -153,6 +168,28 @@ func ExampleSlice_Iterator() {
 	// c
 }
 
+func ExampleSlice_MutableIterator() {
+	list := slice.New[string]("a", "b", "c")
+
+	iterator := list.MutableIterator()
+	for iterator.HasNext() {
+		item, err := iterator.Next()
+		if err != nil {
+			// This should never happen except when the list is concurrently changed.
+			panic(err)
+		}
+		if item == "b" {
+			if err := iterator.Remove(); err != nil {
+				panic(err)
+			}
+		}
+	}
+
+	fmt.Println(list)
+
+	// Output: [a, c]
+}
+
 func ExampleSlice_AddAll() {
 	list1 := slice.New[string]("a", "b", "c")
 	list2 := slice.New[string]("d")
@@ -161,6 +198,119 @@ func ExampleSlice_AddAll() {
 	fmt.Println(list2)
 
 	// Output: [d, a, b, c]
+}
+
+func ExampleSlice_AddAt() {
+	list := slice.New[string]("a", "b", "c")
+	if err := list.AddAt(1, "d"); err != nil {
+		// This should not happen.
+		panic(err)
+	}
+
+	fmt.Println(list)
+
+	// Output: [a, d, b, c]
+}
+
+func ExampleSlice_Clear() {
+	list := slice.New[string]("a", "b", "c")
+	list.Clear()
+
+	fmt.Println(list)
+
+	// Output: []
+}
+
+func ExampleSlice_Get() {
+	list := slice.New[string]("a", "b", "c")
+	item, err := list.Get(1)
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+
+	fmt.Println(item)
+
+	// Output: b
+}
+
+func ExampleSlice_Set() {
+	list := slice.New[string]("a", "b", "c")
+	if err := list.Set(1, "d"); err != nil {
+		panic(err)
+	}
+
+	fmt.Println(list)
+
+	// Output: [a, d, c]
+}
+
+func ExampleSlice_Size() {
+	list := slice.New("a", "b", "c")
+
+	fmt.Println(list.Size())
+
+	// Output: 3
+}
+
+func ExampleSlice_Sort() {
+	type customData struct {
+		data string
+	}
+
+	list := slice.New(customData{"c"}, customData{"b"}, customData{"a"})
+	list.Sort(
+		func(a, b customData) int {
+			return strings.Compare(a.data, b.data)
+		},
+	)
+	fmt.Println(list)
+
+	// Output: [{a}, {b}, {c}]
+}
+
+func ExampleSlice_IndexOf() {
+	list := slice.New[string]("a", "b", "c", "b", "d")
+	index, err := list.IndexOf("b")
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+
+	fmt.Println(index)
+
+	// Output: 1
+}
+
+func ExampleSlice_LastIndexOf() {
+	list := slice.New[string]("a", "b", "c", "b", "d")
+	index, err := list.LastIndexOf("b")
+	if err != nil {
+		// This should not happen
+		panic(err)
+	}
+
+	fmt.Println(index)
+
+	// Output: 3
+}
+
+func ExampleSlice_IsEmpty() {
+	list1 := slice.New[string]("a", "b", "c")
+	if list1.IsEmpty() {
+		fmt.Println("List 1 is empty.")
+	} else {
+		fmt.Println("List 1 is not empty.")
+	}
+	list2 := slice.New[string]()
+	if list2.IsEmpty() {
+		fmt.Println("List 2 is empty.")
+	} else {
+		fmt.Println("List 2 is not empty.")
+	}
+
+	// Output: List 1 is not empty.
+	// List 2 is empty.
 }
 
 func ExampleSliceIterator() {

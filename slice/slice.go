@@ -151,12 +151,11 @@ func (s *Slice[E]) Remove(e E) {
 	}
 }
 
-func (s Slice[E]) RemoveAll(c collections.Collection[E]) {
+func (s *Slice[E]) RemoveAll(c collections.Collection[E]) {
 	iterator := c.Iterator()
 	for iterator.HasNext() {
 		e, err := iterator.Next()
 		if err != nil {
-			//
 			panic(err)
 		}
 		s.Remove(e)
@@ -185,7 +184,8 @@ func (s *Slice[E]) AddAt(index uint, element E) error {
 		*s = append(*s, element)
 		return nil
 	}
-	*s = append(append((*s)[:index], element), (*s)[index:]...)
+	*s = append((*s)[:index+1], (*s)[index:]...)
+	(*s)[index] = element
 	return nil
 }
 
@@ -200,7 +200,7 @@ func (s *Slice[E]) Set(index uint, element E) error {
 func (s *Slice[E]) Sort(f collections.Comparator[E]) {
 	sort.SliceStable(
 		*s, func(i, j int) bool {
-			return f((*s)[i], (*s)[j])
+			return f((*s)[i], (*s)[j]) < 0
 		},
 	)
 }
