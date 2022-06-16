@@ -22,6 +22,8 @@ type Collection[E comparable] interface {
 }
 
 // MutableCollection is a collection variant that allows directly changing the elements of the current collection.
+//
+// The E type parameter specifies the type of the items in the collection.
 type MutableCollection[E comparable] interface {
 	Collection[E]
 	MutableIterable[E]
@@ -50,6 +52,9 @@ type MutableCollection[E comparable] interface {
 }
 
 // ImmutableCollection is a collection that has helper functions for creating changed copies of the collection.
+//
+// The E type parameter specifies the type of the items in the collection, while the T type parameter specifies the
+// implementation type for this interface.
 type ImmutableCollection[E comparable, T any] interface {
 	Collection[E]
 
