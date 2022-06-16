@@ -12,7 +12,7 @@ import (
 )
 
 // New creates a new immutable slice, optionally with the passed elements already added to the slice.
-func New[E comparable](elements ...E) Slice[E] {
+func New[E comparable](elements ...E) ImmutableSlice[E] {
     data := make([]E, len(elements))
     copy(data, elements)
     return &slice[E]{
@@ -20,10 +20,10 @@ func New[E comparable](elements ...E) Slice[E] {
     }
 }
 
-// Slice is a go slice-backed immutable list. Immutability ensures that the implementation is safe to use in a
+// ImmutableSlice is a go slice-backed immutable list. Immutability ensures that the implementation is safe to use in a
 // concurrent-access environment.
 //
-// You can create a new Slice using the New() function:
+// You can create a new ImmutableSlice using the New() function:
 //
 //     s := immutableslice.New[string]()
 //
@@ -40,7 +40,7 @@ func New[E comparable](elements ...E) Slice[E] {
 // Incorrect:
 //
 //     s.WithAdded("d")
-type Slice[E comparable] interface {
+type ImmutableSlice[E comparable] interface {
     collections.ImmutableList[E]
 }
 
