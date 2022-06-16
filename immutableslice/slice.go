@@ -12,12 +12,36 @@ import (
 )
 
 // New creates a new immutable slice, optionally with the passed elements already added to the slice.
-func New[E comparable](elements ...E) collections.ImmutableList[E] {
+func New[E comparable](elements ...E) Slice[E] {
     data := make([]E, len(elements))
     copy(data, elements)
     return &slice[E]{
         data: data,
     }
+}
+
+// Slice is a go slice-backed immutable list. Immutability ensures that the implementation is safe to use in a
+// concurrent-access environment.
+//
+// You can create a new Slice using the New() function:
+//
+//     s := immutableslice.New[string]()
+//
+// You can also pass items to initialize the slice. This also saves you from needing to pass the type specification:
+//
+//     s := immutableSlice.New("a", "b", "c")
+//
+// You can then use the slice. However, any modification will make a copy, which you need to store.
+//
+// Correct:
+//
+//     s = s.WithAdded("d")
+//
+// Incorrect:
+//
+//     s.WithAdded("d")
+type Slice[E comparable] interface {
+    collections.ImmutableList[E]
 }
 
 type slice[E comparable] struct {
