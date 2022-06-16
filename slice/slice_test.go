@@ -87,6 +87,30 @@ func ExampleNewFromSlice() {
 	// Output: [d, f, c]
 }
 
+func ExampleSlice_Stream() {
+	s := slice.New(1, 2, 3, 4, 5, 6)
+	
+	n, err := s.
+		Stream().
+		Filter(
+			func(e int) bool {
+				return e%2 == 0
+			},
+		).
+		Filter(
+			func(e int) bool {
+				return e%3 == 0
+			},
+		).ToSlice()
+
+	if err != nil {
+		panic(err)
+	}
+	fmt.Println(n)
+
+	// Output: [6]
+}
+
 func ExampleSlice_Add() {
 	// Create a new list
 	var list collections.MutableList[string] = slice.New("a", "b", "c", "d")

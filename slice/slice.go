@@ -9,6 +9,7 @@ import (
 	"strings"
 
 	"github.com/apitalist/collections"
+	"github.com/apitalist/collections/stream"
 )
 
 // New creates a new slice-backed list, optionally filled with the specified elements. Slice lists are not
@@ -57,6 +58,11 @@ func NewFromSlice[E comparable](existingSlice []E) *Slice[E] {
 //     myData := []string{"a", "b", "c"}
 //     mySlice := *slice.Slice(&myData)
 type Slice[E comparable] []E
+
+// Stream creates a processing stream from the current slice.
+func (s *Slice[E]) Stream() collections.Stream[E] {
+	return stream.FromCollection[E](s)
+}
 
 // RemoveAt removes the element at the specified index. If the specified index does not exist a
 // collections.ErrIndexOutOfBounds is returned.

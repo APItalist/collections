@@ -9,6 +9,7 @@ import (
 	"sync"
 
 	"github.com/apitalist/collections"
+	"github.com/apitalist/collections/stream"
 )
 
 // New creates a new immutable slice, optionally with the passed elements already added to the slice. You can use it
@@ -53,6 +54,11 @@ type ImmutableSlice[E comparable] interface {
 
 type slice[E comparable] struct {
 	data []E
+}
+
+// Stream creates a processing stream from the current slice.
+func (s slice[E]) Stream() collections.Stream[E] {
+	return stream.FromCollection[E](s)
 }
 
 func (s slice[E]) Iterator() collections.Iterator[E] {

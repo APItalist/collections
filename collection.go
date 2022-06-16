@@ -19,6 +19,9 @@ type Collection[E comparable] interface {
 
 	// ToSlice returns all elements in the current collection in a slice.
 	ToSlice() []E
+
+	// Stream creates a functional stream that you can use to filter, map, and process the elements in this collection.
+	Stream() Stream[E]
 }
 
 // MutableCollection is a collection variant that allows directly changing the elements of the current collection.

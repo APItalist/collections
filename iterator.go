@@ -1,5 +1,7 @@
 package collections
 
+import "io"
+
 // Iterable is an interface designating an element as being able to be looped over. The T type parameter designates
 // the type of the elements in the iterator.
 type Iterable[T any] interface {
@@ -50,4 +52,11 @@ type MutableIterator[T any] interface {
 	// Remove removes the current element. Returns an ErrIndexOutOfBounds if the current iterator does not point to a
 	// valid element (e.g. before calling Next()).
 	Remove() error
+}
+
+// IteratorCloser is an iterator that must be closed for an orderly shutdown.
+type IteratorCloser[T any] interface {
+	Iterator[T]
+
+	io.Closer
 }
