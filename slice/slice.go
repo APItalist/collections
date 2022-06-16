@@ -58,7 +58,7 @@ func (s *Slice[E]) RemoveAt(index uint) error {
 // Iterator returns an iterator to loop over the elements. Multiple concurrent iterators for the Slice may exist, but
 // concurrent modification must be locked externally.
 func (s *Slice[E]) Iterator() collections.Iterator[E] {
-	return &SliceIterator[E]{
+	return &Iterator[E]{
 		s,
 		-1,
 	}
@@ -68,7 +68,7 @@ func (s *Slice[E]) Iterator() collections.Iterator[E] {
 // current element from the list. Multiple concurrent iterators for the Slice may exist, but concurrent modification
 // must be locked externally.
 func (s *Slice[E]) MutableIterator() collections.MutableIterator[E] {
-	return &SliceIterator[E]{
+	return &Iterator[E]{
 		s,
 		-1,
 	}
@@ -234,16 +234,16 @@ func (s Slice[E]) String() string {
 	return "[" + strings.Join(result, ", ") + "]"
 }
 
-// SliceIterator is an interator looping over a Slice. You can create it by calling Iterator() or MutableIterator() on a
+// Iterator is an interator looping over a Slice. You can create it by calling Iterator() or MutableIterator() on a
 // Slice.
-type SliceIterator[E comparable] struct {
+type Iterator[E comparable] struct {
 	backingSlice *Slice[E]
 	index        int
 }
 
 // ForEachRemaining executes the specified consumer function on each remaining elements until no more elements remain
 // in the iterator or an error occurs.
-func (s *SliceIterator[E]) ForEachRemaining(f collections.Consumer[E]) error {
+func (s *Iterator[E]) ForEachRemaining(f collections.Consumer[E]) error {
 	for s.HasNext() {
 		element, err := s.Next()
 		if err != nil {
@@ -258,7 +258,7 @@ func (s *SliceIterator[E]) ForEachRemaining(f collections.Consumer[E]) error {
 }
 
 // HasNext returns true if the iterator has more elements remaining.
-func (s SliceIterator[E]) HasNext() bool {
+func (s Iterator[E]) HasNext() bool {
 	return s.index < len(*s.backingSlice)-1
 }
 
@@ -272,7 +272,7 @@ func (s SliceIterator[E]) HasNext() bool {
 //             panic(err)
 //         }
 //     }
-func (s *SliceIterator[E]) Next() (E, error) {
+func (s *Iterator[E]) Next() (E, error) {
 	var emptyResult E
 	if s.index >= len(*s.backingSlice)-1 {
 		return emptyResult, collections.ErrIndexOutOfBounds
@@ -283,7 +283,7 @@ func (s *SliceIterator[E]) Next() (E, error) {
 
 // Set sets the current element in the underlying Slice. If the iterator currently doesn't point to a valid element,
 // for example Next() hasn't been called yet, a collections.ErrIndexOutOfBounds is returned.
-func (s *SliceIterator[E]) Set(e E) error {
+func (s *Iterator[E]) Set(e E) error {
 	if s.index >= len(*s.backingSlice) {
 		return collections.ErrIndexOutOfBounds
 	}
@@ -292,7 +292,7 @@ func (s *SliceIterator[E]) Set(e E) error {
 }
 
 // Remove removes the current element from the underlying Slice.
-func (s *SliceIterator[E]) Remove() error {
+func (s *Iterator[E]) Remove() error {
 	if s.index >= len(*s.backingSlice) {
 		return collections.ErrIndexOutOfBounds
 	}

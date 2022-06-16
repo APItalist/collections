@@ -38,7 +38,7 @@ type ImmutableList[E comparable] interface {
 	List[E, ImmutableList[E]]
 	ImmutableCollection[E, ImmutableList[E]]
 
-	WithAddedAt(index uint, element E) ImmutableList[E]
+	WithAddedAt(index uint, element E) (ImmutableList[E], error)
 	WithSet(index uint, element E) (ImmutableList[E], error)
 	WithSorted(Comparator[E]) ImmutableList[E]
 	WithRemovedAt(index uint) (ImmutableList[E], error)
