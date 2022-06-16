@@ -138,7 +138,9 @@ func (s *Slice[E]) SubList(from, to uint) (collections.MutableList[E], error) {
 		return nil, collections.ErrIndexOutOfBounds
 	}
 	subSlice := (*s)[from:to]
-	return &subSlice, nil
+	newSlice := make([]E, len(subSlice))
+	copy(newSlice, subSlice)
+	return NewFromSlice(newSlice), nil
 }
 
 // Add adds a new element to the slice.

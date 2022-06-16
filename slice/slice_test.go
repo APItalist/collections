@@ -354,8 +354,10 @@ func ExampleSlice_SubList() {
 	}
 
 	fmt.Println(list)
+	fmt.Println(subList)
 
-	// Output: [1, 10, 3, 4, 5, 6, 7]
+	// Output: [1, 2, 3, 4, 5, 6, 7]
+	// [10, 3]
 }
 
 func ExampleSlice_SubList_addingItems() {
@@ -369,8 +371,10 @@ func ExampleSlice_SubList_addingItems() {
 	// Adding an item to the sublist will overwrite the parent list.
 	subList.Add(10)
 	fmt.Println(list)
+	fmt.Println(subList)
 
-	// Output: [1, 2, 3, 10, 5, 6, 7]
+	// Output: [1, 2, 3, 4, 5, 6, 7]
+	// [2, 3, 10]
 }
 
 func ExampleSlice_SubList_removingItems() {
@@ -384,8 +388,10 @@ func ExampleSlice_SubList_removingItems() {
 	// Adding an item to the sublist will overwrite the parent list.
 	subList.Remove(2)
 	fmt.Println(list)
+	fmt.Println(subList)
 
-	// Output: [1, 2, 3, 10, 5, 6, 7]
+	// Output: [1, 2, 3, 4, 5, 6, 7]
+	// [3]
 }
 
 func ExampleSliceIterator_hasNext() {
