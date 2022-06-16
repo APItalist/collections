@@ -58,7 +58,7 @@ type slice[E comparable] struct {
 func (s slice[E]) Iterator() collections.Iterator[E] {
 	return &sliceIterator[E]{
 		slice: s,
-		index: 0,
+		index: -1,
 		lock:  &sync.Mutex{},
 	}
 }
@@ -265,7 +265,7 @@ type sliceIterator[E comparable] struct {
 	lock  *sync.Mutex
 }
 
-func (s sliceIterator[E]) ForEachRemaining(c collections.Consumer[E]) error {
+func (s *sliceIterator[E]) ForEachRemaining(c collections.Consumer[E]) error {
 	s.lock.Lock()
 	for s.index < len(s.slice.data)-1 {
 		element := s.slice.data[s.index]
@@ -287,7 +287,7 @@ func (s sliceIterator[E]) HasNext() bool {
 	return s.index < len(s.slice.data)-1
 }
 
-func (s sliceIterator[E]) Next() (E, error) {
+func (s *sliceIterator[E]) Next() (E, error) {
 	s.lock.Lock()
 	defer s.lock.Unlock()
 	var defaultReturn E

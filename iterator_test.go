@@ -42,7 +42,7 @@ func (e *exampleIterator[T]) Next() (T, error) {
 }
 
 func ExampleIterator() {
-	// Example 1: using HasNext() and Next() to loop over the iterator.
+	// Example_slice 1: using HasNext() and Next() to loop over the iterator.
 	var iterator1 collections.Iterator[string] = &exampleIterator[string]{
 		data: []string{"a", "b", "c"},
 		i:    -1,
@@ -60,7 +60,7 @@ func ExampleIterator() {
 		fmt.Println(element)
 	}
 
-	// Example 2: using ForEachRemaining() to loop over the iterator.
+	// Example_slice 2: using ForEachRemaining() to loop over the iterator.
 	var iterator2 collections.Iterator[string] = &exampleIterator[string]{
 		data: []string{"d", "e", "f"},
 		i:    -1,
