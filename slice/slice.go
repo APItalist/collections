@@ -39,7 +39,20 @@ func NewFromSlice[E comparable](existingSlice []E) *Slice[E] {
 //
 //     var mySlice slice.Slice
 //
-// You can can create this Slice using the New() function, or manually by converting an underlying slice:
+// You can can create this Slice using the New() function:
+//
+//     myData := slice.New[string]()
+//
+// You can also pass data to the New() function, which eliminates the need for a type specification:
+//
+//     myData := slice.New("a", "b", "c")
+//
+// You can also convert an existing slice:
+//
+//     mySlice := []string{"a", "b", "c"}
+//     myData := slice.NewFromSlice(mySlice)
+//
+// Or, you can alternatively convert it manually:
 //
 //     myData := []string{"a", "b", "c"}
 //     mySlice := *slice.Slice(&myData)

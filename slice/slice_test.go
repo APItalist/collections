@@ -16,6 +16,7 @@ func Example() {
 	// You can also convert an existing slice:
 	existingSlice := []string{"a", "b", "c"}
 	list = (*slice.Slice[string])(&existingSlice) //nolint:ineffassign
+
 	// Instead of the code above, you can also use this simplified function:
 	list = slice.NewFromSlice(existingSlice)
 
