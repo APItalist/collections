@@ -11,11 +11,11 @@ import (
 
 func Example() {
 	// The list variable will contain a typed slice:
-	list := slice.New("a", "b", "c")
+	list := slice.New("a", "b", "c") //nolint:ineffassign
 
 	// You can also convert an existing slice:
 	existingSlice := []string{"a", "b", "c"}
-	list = (*slice.Slice[string])(&existingSlice)
+	list = (*slice.Slice[string])(&existingSlice) //nolint:ineffassign
 	// Instead of the code above, you can also use this simplified function:
 	list = slice.NewFromSlice(existingSlice)
 
