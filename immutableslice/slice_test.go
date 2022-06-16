@@ -24,7 +24,7 @@ func Example() {
 	// Output: [b, c, d, e]
 }
 
-func Example_withAdded() {
+func ExampleImmutableSlice_withAdded() {
 	// Create a new immutable slice:
 	s := immutableslice.New("a", "b", "c")
 
@@ -35,7 +35,7 @@ func Example_withAdded() {
 	// Output: [a, b, c, d, e]
 }
 
-func Example_withRemoved() {
+func ExampleImmutableSlice_withRemoved() {
 	// Create a new immutable slice:
 	s := immutableslice.New("a", "b", "c", "b", "e")
 
@@ -47,7 +47,7 @@ func Example_withRemoved() {
 	// Output: [a, c, e]
 }
 
-func Example_get() {
+func ExampleImmutableSlice_get() {
 	// Create a new immutable slice:
 	s := immutableslice.New("a", "b", "c", "b", "e")
 
