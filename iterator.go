@@ -1,16 +1,18 @@
 package collections
 
-// Iterable is an interface designating an element as being able to be looped over.
-//
-// The first type (T) designates the type of the elements, while the second type (I) designates the specific iterator
-// implementation.
+// Iterable is an interface designating an element as being able to be looped over. The T type parameter designates
+// the type of the elements in the iterator.
 type Iterable[T any] interface {
 	// Iterator returns an Iterator implementation that loops over a list of elements. Depending on the underlying
 	// implementation, the iterator may or may not loop over the elements in a guaranteed order.
 	Iterator() Iterator[T]
 }
 
+// MutableIterable is a typed interface that returns an iterator that can be updated.
 type MutableIterable[T any] interface {
+	// MutableIterator returns a mutable iterator to loop over the elements. It also offers the ability to remove the
+	// current element from the list. Multiple concurrent iterators for the Slice may exist, but concurrent modification
+	// must be locked externally.
 	MutableIterator() MutableIterator[T]
 }
 

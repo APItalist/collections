@@ -36,7 +36,7 @@ func New[E comparable](elements ...E) ImmutableSlice[E] {
 //
 // You can also pass items to initialize the slice. This also saves you from needing to pass the type specification:
 //
-//     s := immutableSlice.New("a", "b", "c")
+//     s := immutableslice.New("a", "b", "c")
 //
 // You can then use the slice. However, any modification will make a copy, which you need to store.
 //
