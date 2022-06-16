@@ -89,7 +89,7 @@ func ExampleNewFromSlice() {
 
 func ExampleSlice_Stream() {
 	s := slice.New(1, 2, 3, 4, 5, 6)
-	
+
 	n, err := s.
 		Stream().
 		Filter(
