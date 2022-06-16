@@ -395,7 +395,7 @@ func ExampleSlice_SubList_removingItems() {
 	// [3]
 }
 
-func ExampleSliceIterator_hasNext() {
+func ExampleIterator_hasNext() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.Iterator()
@@ -413,7 +413,7 @@ func ExampleSliceIterator_hasNext() {
 	// c
 }
 
-func ExampleSliceIterator_forEachRemaining() {
+func ExampleIterator_forEachRemaining() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.Iterator()
@@ -431,7 +431,7 @@ func ExampleSliceIterator_forEachRemaining() {
 
 // ExampleSliceIterator_Next demonstrates the use of the Next() function. This function is best used in a for loop in
 // conjunction with HasNext().
-func ExampleSliceIterator_Next() {
+func ExampleIterator_Next() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.Iterator()
@@ -474,7 +474,7 @@ func ExampleSliceIterator_Next() {
 	// List finished!
 }
 
-func ExampleSliceIterator_Remove() {
+func ExampleIterator_Remove() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.MutableIterator()
@@ -498,7 +498,7 @@ func ExampleSliceIterator_Remove() {
 	// Output: [a, c]
 }
 
-func ExampleSliceIterator_Set() {
+func ExampleIterator_Set() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.MutableIterator()
