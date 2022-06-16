@@ -75,18 +75,18 @@ func (s *Slice[E]) MutableIterator() collections.MutableIterator[E] {
 }
 
 // IsEmpty returns true if the current Slice is empty.
-func (s *Slice[E]) IsEmpty() bool {
-	return len(*s) == 0
+func (s Slice[E]) IsEmpty() bool {
+	return len(s) == 0
 }
 
 // Size returns the number of elements in the slice.
-func (s *Slice[E]) Size() uint {
-	return uint(len(*s))
+func (s Slice[E]) Size() uint {
+	return uint(len(s))
 }
 
 // ToSlice returns the underlying raw slice. Modifications to this underlying slice will translate to the current slice.
-func (s *Slice[E]) ToSlice() []E {
-	return *s
+func (s Slice[E]) ToSlice() []E {
+	return s
 }
 
 // Contains will return true if the specified element is contained within the slice.
@@ -97,18 +97,18 @@ func (s Slice[E]) Contains(e E) bool {
 
 // Get will return the element at the specified index. If the index is larger than the number of elements, a
 // collections.ErrIndexOutOfBounds is returned.
-func (s *Slice[E]) Get(index uint) (E, error) {
+func (s Slice[E]) Get(index uint) (E, error) {
 	var emptyResult E
-	if index >= uint(len(*s)) {
+	if index >= uint(len(s)) {
 		return emptyResult, collections.ErrIndexOutOfBounds
 	}
-	return (*s)[index], nil
+	return s[index], nil
 }
 
 // IndexOf returns the index of the first element that matches the specified element. If no element is found,
 // a collections.ErrElementNotFound is returned.
-func (s *Slice[E]) IndexOf(e E) (uint, error) {
-	for i, elem := range *s {
+func (s Slice[E]) IndexOf(e E) (uint, error) {
+	for i, elem := range s {
 		if elem == e {
 			return uint(i), nil
 		}
@@ -118,9 +118,9 @@ func (s *Slice[E]) IndexOf(e E) (uint, error) {
 
 // LastIndexOf returns the index of the last element that matches the specified element. If no element is found,
 // a collections.ErrElementNotFound is returned.
-func (s *Slice[E]) LastIndexOf(e E) (uint, error) {
-	for i := len(*s) - 1; i >= 0; i-- {
-		elem := (*s)[i]
+func (s Slice[E]) LastIndexOf(e E) (uint, error) {
+	for i := len(s) - 1; i >= 0; i-- {
+		elem := s[i]
 		if elem == e {
 			return uint(i), nil
 		}
@@ -130,14 +130,14 @@ func (s *Slice[E]) LastIndexOf(e E) (uint, error) {
 
 // SubList will return a part of the current Slice. If the specified bounds are invalid, a
 // collections.ErrIndexOutOfBounds is returned.
-func (s *Slice[E]) SubList(from, to uint) (collections.MutableList[E], error) {
+func (s Slice[E]) SubList(from, to uint) (collections.MutableList[E], error) {
 	if from > to {
 		return nil, collections.ErrIndexOutOfBounds
 	}
-	if to >= uint(len(*s)) {
+	if to >= uint(len(s)) {
 		return nil, collections.ErrIndexOutOfBounds
 	}
-	subSlice := (*s)[from:to]
+	subSlice := s[from:to]
 	newSlice := make([]E, len(subSlice))
 	copy(newSlice, subSlice)
 	return NewFromSlice(newSlice), nil
