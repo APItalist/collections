@@ -10,8 +10,8 @@ type Map[K, V comparable] interface {
 }
 
 type MapEntry[K, V comparable] struct {
-    K
-    V
+    Key   K
+    Value V
 }
 
 type MutableMap[K, V comparable] interface {
