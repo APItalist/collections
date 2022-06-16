@@ -64,6 +64,7 @@ type ImmutableList[E comparable] interface {
 	// other elements back. The current list remains unchanged in the process. If the specified index is after the end
 	// of the list, an ErrIndexOutOfBounds is returned.
 	WithAddedAt(index uint, element E) (ImmutableList[E], error)
+
 	// WithSet creates a new copy of the current list, with the element at the specified index replaced with the
 	// specified value. The current list remains unchanged in the process. If the specified index is after the end
 	// of the list, an ErrIndexOutOfBounds is returned.
