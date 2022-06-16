@@ -1,3 +1,4 @@
+// Package collect provides collectors from streams to other formats.
 package collect
 
 import (
