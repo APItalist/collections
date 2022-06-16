@@ -263,16 +263,17 @@ func (i *iterator[T]) HasNext() bool {
     select {
     case item, ok := <-i.input:
         if !ok {
-            _ = i.Close()
+            i.finish()
             return false
         }
         i.lastItem = &item
         return true
     case err, ok := <-i.errorInput:
-        if ok {
-            i.lastError = err
+        if !ok {
+            i.finish()
+            return false
         }
-        _ = i.Close()
+        i.lastError = err
         return false
     case <-i.complete:
         return false

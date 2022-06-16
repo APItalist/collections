@@ -3,6 +3,7 @@ package collections_test
 import (
     "fmt"
 
+    "github.com/apitalist/collections/collect"
     "github.com/apitalist/collections/slice"
     "github.com/apitalist/collections/stream"
 )
@@ -70,4 +71,26 @@ func ExampleStream_lists() {
 
     fmt.Println(r)
     // Output: [2 4]
+}
+
+func ExampleStream_collect() {
+    // You can collect the stream output:
+    l, err := collect.ToList(
+        slice.
+            New(1, 2, 3, 4).
+            Stream().
+            Filter(func(i int) bool { return i%2 == 0 }),
+    )
+    if err != nil {
+        panic(err)
+    }
+
+    i, err := l.IndexOf(2)
+    if err != nil {
+        panic(err)
+    }
+
+    fmt.Println(i)
+
+    // Output: 0
 }
