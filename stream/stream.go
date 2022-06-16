@@ -147,7 +147,10 @@ func (s stream[T]) Count() (uint, error) {
                 return count, nil
             }
             count++
-        case err := <-s.errorInput:
+        case err, ok := <-s.errorInput:
+            if !ok {
+                return count, nil
+            }
             return count, err
         }
     }

@@ -1,3 +1,5 @@
+// Package stream provides a channel-based stream processor, which processes individual steps in separate goroutines.
+// However, the individual step executions are not parallelized.
 package stream
 
 import (
