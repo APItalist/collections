@@ -20,12 +20,7 @@ func ExampleList() {
 	// We can also print all items in a list:
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		element, err := iterator.Next()
-		if err != nil {
-			// This should never happen:
-			panic(err)
-		}
-		fmt.Println(element)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: b
@@ -52,12 +47,7 @@ func ExampleImmutableList() {
 	// We can also print all items in a list:
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		element, err := iterator.Next()
-		if err != nil {
-			// This should never happen:
-			panic(err)
-		}
-		fmt.Println(element)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: b
@@ -84,12 +74,7 @@ func Example_immutableslice() {
 	// We can also print all items in a list:
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		element, err := iterator.Next()
-		if err != nil {
-			// This should never happen:
-			panic(err)
-		}
-		fmt.Println(element)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: b
@@ -110,12 +95,7 @@ func ExampleMutableList() {
 	// We can also print all items in a list:
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		element, err := iterator.Next()
-		if err != nil {
-			// This should never happen:
-			panic(err)
-		}
-		fmt.Println(element)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: b
@@ -136,12 +116,7 @@ func Example_slice() {
 	// We can also print all items in a list:
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		element, err := iterator.Next()
-		if err != nil {
-			// This should never happen:
-			panic(err)
-		}
-		fmt.Println(element)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: b

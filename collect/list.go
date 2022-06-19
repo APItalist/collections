@@ -10,11 +10,7 @@ func ToList[T comparable](s collections.Stream[T]) (collections.MutableList[T], 
 	l := slice.New[T]()
 	iterator := s.Iterator()
 	for iterator.HasNext() {
-		e, err := iterator.Next()
-		if err != nil {
-			return nil, err
-		}
-		l.Add(e)
+		l.Add(iterator.Next())
 	}
 	return l, nil
 }

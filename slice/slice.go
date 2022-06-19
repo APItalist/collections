@@ -65,13 +65,13 @@ func (s *Slice[E]) Stream() collections.Stream[E] {
 }
 
 // RemoveAt removes the element at the specified index. If the specified index does not exist a
-// collections.ErrIndexOutOfBounds is returned.
-func (s *Slice[E]) RemoveAt(index uint) error {
+// collections.ErrIndexOutOfBounds is thrown in a panic.
+func (s *Slice[E]) RemoveAt(index uint) collections.MutableList[E] {
 	if index >= uint(len(*s)) {
-		return collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	*s = append((*s)[:index], (*s)[index+1:]...)
-	return nil
+	return s
 }
 
 // Iterator returns an iterator to loop over the elements. Multiple concurrent iterators for the Slice may exist, but
@@ -110,56 +110,59 @@ func (s Slice[E]) ToSlice() []E {
 
 // Contains will return true if the specified element is contained within the slice.
 func (s Slice[E]) Contains(e E) bool {
-	_, err := s.IndexOf(e)
-	return err == nil
+	for _, elem := range s {
+		if elem == e {
+			return true
+		}
+	}
+	return false
 }
 
 // Get will return the element at the specified index. If the index is larger than the number of elements, a
 // collections.ErrIndexOutOfBounds is returned.
-func (s Slice[E]) Get(index uint) (E, error) {
-	var emptyResult E
+func (s Slice[E]) Get(index uint) E {
 	if index >= uint(len(s)) {
-		return emptyResult, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
-	return s[index], nil
+	return s[index]
 }
 
 // IndexOf returns the index of the first element that matches the specified element. If no element is found,
 // a collections.ErrElementNotFound is returned.
-func (s Slice[E]) IndexOf(e E) (uint, error) {
+func (s Slice[E]) IndexOf(e E) uint {
 	for i, elem := range s {
 		if elem == e {
-			return uint(i), nil
+			return uint(i)
 		}
 	}
-	return 0, collections.ErrElementNotFound
+	panic(collections.ErrElementNotFound)
 }
 
 // LastIndexOf returns the index of the last element that matches the specified element. If no element is found,
 // a collections.ErrElementNotFound is returned.
-func (s Slice[E]) LastIndexOf(e E) (uint, error) {
+func (s Slice[E]) LastIndexOf(e E) uint {
 	for i := len(s) - 1; i >= 0; i-- {
 		elem := s[i]
 		if elem == e {
-			return uint(i), nil
+			return uint(i)
 		}
 	}
-	return 0, collections.ErrElementNotFound
+	panic(collections.ErrElementNotFound)
 }
 
 // SubList will return a part of the current Slice. If the specified bounds are invalid, a
 // collections.ErrIndexOutOfBounds is returned.
-func (s Slice[E]) SubList(from, to uint) (collections.MutableList[E], error) {
+func (s Slice[E]) SubList(from, to uint) collections.MutableList[E] {
 	if from > to {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	if to >= uint(len(s)) {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	subSlice := s[from:to]
 	newSlice := make([]E, len(subSlice))
 	copy(newSlice, subSlice)
-	return NewFromSlice(newSlice), nil
+	return NewFromSlice(newSlice)
 }
 
 // Add adds a new element to the slice.
@@ -167,14 +170,11 @@ func (s *Slice[E]) Add(e E) {
 	*s = append(*s, e)
 }
 
-// AddAll adds all elements from the passed collection to the current slice. Depending on the
+// AddAll adds all elements from the passed collection to the current slice.
 func (s *Slice[E]) AddAll(c collections.Collection[E]) {
 	iterator := c.Iterator()
 	for iterator.HasNext() {
-		e, err := iterator.Next()
-		if err != nil {
-			panic(err)
-		}
+		e := iterator.Next()
 		s.Add(e)
 	}
 }
@@ -194,10 +194,7 @@ func (s *Slice[E]) Remove(e E) {
 func (s *Slice[E]) RemoveAll(c collections.Collection[E]) {
 	iterator := c.Iterator()
 	for iterator.HasNext() {
-		e, err := iterator.Next()
-		if err != nil {
-			panic(err)
-		}
+		e := iterator.Next()
 		s.Remove(e)
 	}
 }
@@ -216,33 +213,34 @@ func (s *Slice[E]) RetainAll(c collections.Collection[E]) {
 	s.RemoveIf(collections.Predicate[E](c.Contains).Negate())
 }
 
-func (s *Slice[E]) AddAt(index uint, element E) error {
+func (s *Slice[E]) AddAt(index uint, element E) collections.MutableList[E] {
 	if index > uint(len(*s)) {
-		return collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	if index == uint(len(*s)) {
 		*s = append(*s, element)
-		return nil
+		return s
 	}
 	*s = append((*s)[:index+1], (*s)[index:]...)
 	(*s)[index] = element
-	return nil
+	return s
 }
 
-func (s *Slice[E]) Set(index uint, element E) error {
+func (s *Slice[E]) Set(index uint, element E) collections.MutableList[E] {
 	if index >= uint(len(*s)) {
-		return collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	(*s)[index] = element
-	return nil
+	return s
 }
 
-func (s *Slice[E]) Sort(f collections.Comparator[E]) {
+func (s *Slice[E]) Sort(f collections.Comparator[E]) collections.MutableList[E] {
 	sort.SliceStable(
 		*s, func(i, j int) bool {
 			return f((*s)[i], (*s)[j]) < 0
 		},
 	)
+	return s
 }
 
 func (s Slice[E]) String() string {
@@ -262,18 +260,10 @@ type Iterator[E comparable] struct {
 
 // ForEachRemaining executes the specified consumer function on each remaining elements until no more elements remain
 // in the iterator or an error occurs.
-func (s *Iterator[E]) ForEachRemaining(f collections.Consumer[E]) error {
+func (s *Iterator[E]) ForEachRemaining(f collections.Consumer[E]) {
 	for s.HasNext() {
-		element, err := s.Next()
-		if err != nil {
-			// No more elements remaining
-			return nil
-		}
-		if err := f(element); err != nil {
-			return err
-		}
+		f(s.Next())
 	}
-	return nil
 }
 
 // HasNext returns true if the iterator has more elements remaining.
@@ -291,30 +281,27 @@ func (s Iterator[E]) HasNext() bool {
 //             panic(err)
 //         }
 //     }
-func (s *Iterator[E]) Next() (E, error) {
-	var emptyResult E
+func (s *Iterator[E]) Next() E {
 	if s.index >= len(*s.backingSlice)-1 {
-		return emptyResult, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	s.index++
-	return (*s.backingSlice)[s.index], nil
+	return (*s.backingSlice)[s.index]
 }
 
 // Set sets the current element in the underlying Slice. If the iterator currently doesn't point to a valid element,
 // for example Next() hasn't been called yet, a collections.ErrIndexOutOfBounds is returned.
-func (s *Iterator[E]) Set(e E) error {
+func (s *Iterator[E]) Set(e E) {
 	if s.index >= len(*s.backingSlice) {
-		return collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	(*s.backingSlice)[s.index] = e
-	return nil
 }
 
 // Remove removes the current element from the underlying Slice.
-func (s *Iterator[E]) Remove() error {
+func (s *Iterator[E]) Remove() {
 	if s.index >= len(*s.backingSlice) {
-		return collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	*s.backingSlice = append((*s.backingSlice)[:s.index], (*s.backingSlice)[s.index+1:]...)
-	return nil
 }

@@ -1,12 +1,13 @@
 package slice_test
 
 import (
-	"errors"
 	"fmt"
 	"strings"
 
 	"github.com/apitalist/collections"
 	"github.com/apitalist/collections/slice"
+	"github.com/apitalist/lang/try"
+	"github.com/apitalist/lang/try/catch"
 )
 
 func Example() {
@@ -27,21 +28,14 @@ func Example() {
 	list.Remove("a")
 
 	// Or we can remove by position:
-	if err := list.RemoveAt(0); err != nil {
-		// Position 0 is guaranteed to be filled, so this should never happen.
-		panic(err)
-	}
+	list.RemoveAt(0)
 
 	// Let's loop over the items:
-	if err := list.Iterator().ForEachRemaining(
-		func(e string) error {
+	list.Iterator().ForEachRemaining(
+		func(e string) {
 			fmt.Printf("Printing an element: %s\n", e)
-			return nil
 		},
-	); err != nil {
-		// This should also never happen
-		panic(err)
-	}
+	)
 
 	// We can also print slices directly:
 	fmt.Printf("Here's the slice directly: %v\n", list)
@@ -90,7 +84,7 @@ func ExampleNewFromSlice() {
 func ExampleSlice_Stream() {
 	s := slice.New(1, 2, 3, 4, 5, 6)
 
-	n, err := s.
+	n := s.
 		Stream().
 		Filter(
 			func(e int) bool {
@@ -102,10 +96,6 @@ func ExampleSlice_Stream() {
 				return e%3 == 0
 			},
 		).ToSlice()
-
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(n)
 
 	// Output: [6]
@@ -118,11 +108,10 @@ func ExampleSlice_Add() {
 	// Add an element to the list
 	list.Add("e")
 
-	// Iterate over the list. We ignore the returning error since our output function never fails.
-	_ = list.Iterator().ForEachRemaining(
-		func(e string) error {
+	// Iterate over the list.
+	list.Iterator().ForEachRemaining(
+		func(e string) {
 			fmt.Print(e)
-			return nil
 		},
 	)
 
@@ -202,12 +191,7 @@ func ExampleSlice_Iterator() {
 
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		item, err := iterator.Next()
-		if err != nil {
-			// This should never happen except when the list is concurrently changed.
-			panic(err)
-		}
-		fmt.Println(item)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: a
@@ -220,15 +204,9 @@ func ExampleSlice_MutableIterator() {
 
 	iterator := list.MutableIterator()
 	for iterator.HasNext() {
-		item, err := iterator.Next()
-		if err != nil {
-			// This should never happen except when the list is concurrently changed.
-			panic(err)
-		}
+		item := iterator.Next()
 		if item == "b" {
-			if err := iterator.Remove(); err != nil {
-				panic(err)
-			}
+			iterator.Remove()
 		}
 	}
 
@@ -249,10 +227,7 @@ func ExampleSlice_AddAll() {
 
 func ExampleSlice_AddAt() {
 	list := slice.New[string]("a", "b", "c")
-	if err := list.AddAt(1, "d"); err != nil {
-		// This should not happen.
-		panic(err)
-	}
+	list.AddAt(1, "d")
 
 	fmt.Println(list)
 
@@ -270,11 +245,7 @@ func ExampleSlice_Clear() {
 
 func ExampleSlice_Get() {
 	list := slice.New[string]("a", "b", "c")
-	item, err := list.Get(1)
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
+	item := list.Get(1)
 
 	fmt.Println(item)
 
@@ -283,9 +254,7 @@ func ExampleSlice_Get() {
 
 func ExampleSlice_Set() {
 	list := slice.New[string]("a", "b", "c")
-	if err := list.Set(1, "d"); err != nil {
-		panic(err)
-	}
+	list.Set(1, "d")
 
 	fmt.Println(list)
 
@@ -318,11 +287,7 @@ func ExampleSlice_Sort() {
 
 func ExampleSlice_IndexOf() {
 	list := slice.New[string]("a", "b", "c", "b", "d")
-	index, err := list.IndexOf("b")
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
+	index := list.IndexOf("b")
 
 	fmt.Println(index)
 
@@ -331,11 +296,7 @@ func ExampleSlice_IndexOf() {
 
 func ExampleSlice_LastIndexOf() {
 	list := slice.New[string]("a", "b", "c", "b", "d")
-	index, err := list.LastIndexOf("b")
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
+	index := list.LastIndexOf("b")
 
 	fmt.Println(index)
 
@@ -349,6 +310,7 @@ func ExampleSlice_IsEmpty() {
 	} else {
 		fmt.Println("List 1 is not empty.")
 	}
+
 	list2 := slice.New[string]()
 	if list2.IsEmpty() {
 		fmt.Println("List 2 is empty.")
@@ -369,14 +331,9 @@ func ExampleSlice_ToSlice() {
 
 func ExampleSlice_SubList() {
 	list := slice.New(1, 2, 3, 4, 5, 6, 7)
-	subList, err := list.SubList(1, 3)
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
-	if err := subList.Set(0, 10); err != nil {
-		panic(err)
-	}
+	subList := list.SubList(1, 3)
+
+	subList.Set(0, 10)
 
 	fmt.Println(list)
 	fmt.Println(subList)
@@ -387,11 +344,7 @@ func ExampleSlice_SubList() {
 
 func ExampleSlice_SubList_addingItems() {
 	list := slice.New(1, 2, 3, 4, 5, 6, 7)
-	subList, err := list.SubList(1, 3)
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
+	subList := list.SubList(1, 3)
 
 	// Adding an item to the sublist will overwrite the parent list.
 	subList.Add(10)
@@ -404,11 +357,7 @@ func ExampleSlice_SubList_addingItems() {
 
 func ExampleSlice_SubList_removingItems() {
 	list := slice.New(1, 2, 3, 4, 5, 6, 7)
-	subList, err := list.SubList(1, 3)
-	if err != nil {
-		// This should not happen
-		panic(err)
-	}
+	subList := list.SubList(1, 3)
 
 	// Adding an item to the sublist will overwrite the parent list.
 	subList.Remove(2)
@@ -424,11 +373,7 @@ func ExampleIterator_hasNext() {
 
 	iterator := list.Iterator()
 	for iterator.HasNext() {
-		item, err := iterator.Next()
-		if err != nil {
-			// This should never happen except when the list is concurrently changed.
-			panic(err)
-		}
+		item := iterator.Next()
 		fmt.Println(item)
 	}
 
@@ -441,10 +386,9 @@ func ExampleIterator_forEachRemaining() {
 	list := slice.New[string]("a", "b", "c")
 
 	iterator := list.Iterator()
-	_ = iterator.ForEachRemaining(
-		func(item string) error {
+	iterator.ForEachRemaining(
+		func(item string) {
 			fmt.Println(item)
-			return nil
 		},
 	)
 
@@ -461,36 +405,25 @@ func ExampleIterator_Next() {
 	iterator := list.Iterator()
 
 	// Get the first element:
-	e1, err := iterator.Next()
-	if err != nil {
-		// This should never happen
-		panic(err)
-	}
-	fmt.Println(e1)
+	fmt.Println(iterator.Next())
 
 	// Get the second element:
-	e2, err := iterator.Next()
-	if err != nil {
-		// This should never happen
-		panic(err)
-	}
-	fmt.Println(e2)
+	fmt.Println(iterator.Next())
 
 	// Get the third element:
-	e3, err := iterator.Next()
-	if err != nil {
-		// This should never happen
-		panic(err)
-	}
-	fmt.Println(e3)
+	fmt.Println(iterator.Next())
 
 	// This will result in an error since the fourth element doesn't exist.
-	_, err = iterator.Next()
-	if errors.Is(err, collections.ErrIndexOutOfBounds) {
-		fmt.Println("List finished!")
-	} else {
-		panic(err)
-	}
+	try.Catch(
+		func() {
+			_ = iterator.Next()
+		},
+		catch.ErrorByValue(
+			collections.ErrIndexOutOfBounds, func(_ error) {
+				fmt.Println("List finished!")
+			},
+		),
+	)
 
 	// Output: a
 	// b
@@ -503,18 +436,9 @@ func ExampleIterator_Remove() {
 
 	iterator := list.MutableIterator()
 	for iterator.HasNext() {
-		item, err := iterator.Next()
-		if err != nil {
-			// This should never happen except when the list is concurrently changed.
-			panic(err)
-		}
+		item := iterator.Next()
 		if item == "b" {
-			err = iterator.Remove()
-			if err != nil {
-				// Remove can return an error if the list has been changed in a concurrent goroutine, which is not the case
-				// here, so this should never happen.
-				panic(err)
-			}
+			iterator.Remove()
 		}
 	}
 	fmt.Println(list)
@@ -527,18 +451,9 @@ func ExampleIterator_Set() {
 
 	iterator := list.MutableIterator()
 	for iterator.HasNext() {
-		item, err := iterator.Next()
-		if err != nil {
-			// This should never happen except when the list is concurrently changed.
-			panic(err)
-		}
+		item := iterator.Next()
 		if item == "b" {
-			err = iterator.Set("d")
-			if err != nil {
-				// Set can return an error if the list has been changed in a concurrent goroutine, which is not the case
-				// here, so this should never happen.
-				panic(err)
-			}
+			iterator.Set("d")
 		}
 	}
 	fmt.Println(list)

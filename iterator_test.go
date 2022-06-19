@@ -13,17 +13,10 @@ type exampleIterator[T any] struct {
 }
 
 // ForEachRemaining will loop over all remaining elements of the iterator and execute the consumer function.
-func (e *exampleIterator[T]) ForEachRemaining(c collections.Consumer[T]) error {
+func (e *exampleIterator[T]) ForEachRemaining(c collections.Consumer[T]) {
 	for e.HasNext() {
-		element, err := e.Next()
-		if err != nil {
-			panic(err)
-		}
-		if err := c(element); err != nil {
-			return err
-		}
+		c(e.Next())
 	}
-	return nil
 }
 
 // HasNext will return true if there is a next element in the iterator.
@@ -32,13 +25,12 @@ func (e exampleIterator[T]) HasNext() bool {
 }
 
 // Next will advance the internal pointer to the next element and return the next element.
-func (e *exampleIterator[T]) Next() (T, error) {
-	var defaultValue T
+func (e *exampleIterator[T]) Next() T {
 	if !e.HasNext() {
-		return defaultValue, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	e.i++
-	return e.data[e.i], nil
+	return e.data[e.i]
 }
 
 func ExampleIterator() {
@@ -49,14 +41,7 @@ func ExampleIterator() {
 	}
 
 	for iterator1.HasNext() {
-		element, err := iterator1.Next()
-		if err != nil {
-			// This should never happen because we used HasNext. The only way this can happen if the underlying data
-			// structure has changed during iteration and the iterator does not implement concurrent access with locks.
-			// The most appropriate way to handle this is to panic. Consider using the lang.Must2() function in this
-			// case.
-			panic(err)
-		}
+		element := iterator1.Next()
 		fmt.Println(element)
 	}
 
@@ -66,17 +51,11 @@ func ExampleIterator() {
 		i:    -1,
 	}
 
-	printerFunc := func(e string) error {
+	printerFunc := func(e string) {
 		fmt.Println(e)
-		return nil
 	}
 
-	err := iterator2.ForEachRemaining(printerFunc)
-	if err != nil {
-		// We never return an error in printerFunc, so ForEachRemaining will also not return an error. This must be
-		// a race condition if the underlying data structure has changed during execution.
-		panic(err)
-	}
+	iterator2.ForEachRemaining(printerFunc)
 
 	// Output: a
 	// b

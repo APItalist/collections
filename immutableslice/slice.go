@@ -92,40 +92,39 @@ func (s slice[E]) ToSlice() []E {
 	return result
 }
 
-func (s slice[E]) Get(index uint) (E, error) {
-	var defaultReturn E
+func (s slice[E]) Get(index uint) E {
 	if index >= uint(len(s.data)) {
-		return defaultReturn, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
-	return s.data[index], nil
+	return s.data[index]
 }
 
-func (s slice[E]) IndexOf(e E) (uint, error) {
+func (s slice[E]) IndexOf(e E) uint {
 	for i, entry := range s.data {
 		if e == entry {
-			return uint(i), nil
+			return uint(i)
 		}
 	}
-	return 0, collections.ErrElementNotFound
+	panic(collections.ErrElementNotFound)
 }
 
-func (s slice[E]) LastIndexOf(e E) (uint, error) {
+func (s slice[E]) LastIndexOf(e E) uint {
 	for i := len(s.data) - 1; i >= 0; i-- {
 		elem := (s.data)[i]
 		if elem == e {
-			return uint(i), nil
+			return uint(i)
 		}
 	}
-	return 0, collections.ErrElementNotFound
+	panic(collections.ErrElementNotFound)
 }
 
-func (s slice[E]) SubList(from, to uint) (collections.ImmutableList[E], error) {
+func (s slice[E]) SubList(from, to uint) collections.ImmutableList[E] {
 	if from > to || to >= uint(len(s.data)) {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	return slice[E]{
 		s.data[from:to],
-	}, nil
+	}
 }
 
 func (s slice[E]) WithAdded(e E) collections.ImmutableList[E] {
@@ -143,11 +142,7 @@ func (s slice[E]) WithAddedAll(c collections.Collection[E]) collections.Immutabl
 	iterator := c.Iterator()
 	i := len(s.data)
 	for iterator.HasNext() {
-		e, err := iterator.Next()
-		if err != nil {
-			panic(err)
-		}
-		newSlice[i] = e
+		newSlice[i] = iterator.Next()
 		i++
 	}
 	return &slice[E]{
@@ -207,9 +202,9 @@ func (s slice[E]) WithRetainedAll(c collections.Collection[E]) collections.Immut
 	}
 }
 
-func (s slice[E]) WithAddedAt(index uint, element E) (collections.ImmutableList[E], error) {
+func (s slice[E]) WithAddedAt(index uint, element E) collections.ImmutableList[E] {
 	if index > uint(len(s.data)) {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	newSlice := make([]E, len(s.data)+1)
 	copy(newSlice[:index], s.data[:index])
@@ -217,19 +212,19 @@ func (s slice[E]) WithAddedAt(index uint, element E) (collections.ImmutableList[
 	copy(newSlice[index+1:], s.data[index:])
 	return &slice[E]{
 		data: newSlice,
-	}, nil
+	}
 }
 
-func (s slice[E]) WithSet(index uint, element E) (collections.ImmutableList[E], error) {
+func (s slice[E]) WithSet(index uint, element E) collections.ImmutableList[E] {
 	if index >= uint(len(s.data)) {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	newSlice := make([]E, len(s.data))
 	copy(newSlice, s.data)
 	newSlice[index] = element
 	return &slice[E]{
 		data: newSlice,
-	}, nil
+	}
 }
 
 func (s slice[E]) WithSorted(c collections.Comparator[E]) collections.ImmutableList[E] {
@@ -245,16 +240,16 @@ func (s slice[E]) WithSorted(c collections.Comparator[E]) collections.ImmutableL
 	}
 }
 
-func (s slice[E]) WithRemovedAt(index uint) (collections.ImmutableList[E], error) {
+func (s slice[E]) WithRemovedAt(index uint) collections.ImmutableList[E] {
 	if index >= uint(len(s.data)) {
-		return nil, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	newSlice := make([]E, len(s.data)-1)
 	copy(newSlice[:index], s.data[:index])
 	copy(newSlice[index:], s.data[index+1:])
 	return &slice[E]{
 		data: newSlice,
-	}, nil
+	}
 }
 
 func (s slice[E]) String() string {
@@ -271,20 +266,16 @@ type sliceIterator[E comparable] struct {
 	lock  *sync.Mutex
 }
 
-func (s *sliceIterator[E]) ForEachRemaining(c collections.Consumer[E]) error {
+func (s *sliceIterator[E]) ForEachRemaining(c collections.Consumer[E]) {
 	s.lock.Lock()
 	for s.index < len(s.slice.data)-1 {
 		element := s.slice.data[s.index]
 		s.index++
 		s.lock.Unlock()
-		err := c(element)
-		if err != nil {
-			return err
-		}
+		c(element)
 		s.lock.Lock()
 	}
 	s.lock.Unlock()
-	return nil
 }
 
 func (s sliceIterator[E]) HasNext() bool {
@@ -293,13 +284,12 @@ func (s sliceIterator[E]) HasNext() bool {
 	return s.index < len(s.slice.data)-1
 }
 
-func (s *sliceIterator[E]) Next() (E, error) {
+func (s *sliceIterator[E]) Next() E {
 	s.lock.Lock()
 	defer s.lock.Unlock()
-	var defaultReturn E
 	if s.index >= len(s.slice.data)-1 {
-		return defaultReturn, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 	s.index++
-	return s.slice.data[s.index], nil
+	return s.slice.data[s.index]
 }
