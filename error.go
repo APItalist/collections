@@ -8,3 +8,6 @@ var ErrIndexOutOfBounds = fmt.Errorf("index out of bounds")
 
 // ErrElementNotFound indicates that an IndexOf or similar operation did not find the specified element.
 var ErrElementNotFound = fmt.Errorf("element not found")
+
+// ErrKeyNotFound indicates that the specified key in a map was not found.
+var ErrKeyNotFound = fmt.Errorf("key not found")
