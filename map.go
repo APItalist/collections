@@ -12,8 +12,9 @@ type Map[K, V comparable, TKeys Set[K], TValues Collection[V]] interface {
 	// Values returns a collection of all values.
 	Values() TValues
 
-	// Get returns a value of the specified key, or an ErrKeyNotFound if the specified key is not found in the map.
-	Get(K) (V, error)
+	// Get returns a value of the specified key. If the specified key is not found, an ErrKeyNotFound is thrown in a
+	// panic.
+	Get(K) V
 	// GetOrDefault returns a value of the specified key, or the defaultValue if the specified key is not found in the
 	// map.
 	GetOrDefault(K, defaultValue V) V
@@ -44,25 +45,22 @@ type MutableMap[K, V comparable, TKeys Set[K], TValues Collection[V]] interface 
 	Map[K, V, TKeys, TValues]
 
 	// Put sets the specified key to contain the specified value.
-	Put(K, V)
+	Put(K, V) MutableMap[K, V, TKeys, TValues]
 
 	// PutAll puts all values from the passed map into the current map.
-	PutAll(Map[K, V, Set[K], Collection[V]])
+	PutAll(Map[K, V, Set[K], Collection[V]]) MutableMap[K, V, TKeys, TValues]
 
-	// PutIfAbsent sets the specified value to the specified key if, and only if, the key does not yet exist. If the
-	// current value is set, that value is returned.
-	PutIfAbsent(K, V) *V
+	// PutIfAbsent sets the specified value to the specified key if, and only if, the key does not yet exist.
+	PutIfAbsent(K, V) MutableMap[K, V, TKeys, TValues]
 
-	// RemoveKey removes the specified key from the map if present. If the specified key was present, the old value is
-	// returned.
-	RemoveKey(K) *V
+	// RemoveKey removes the specified key from the map if present.
+	RemoveKey(K) MutableMap[K, V, TKeys, TValues]
 
 	// Remove removes a specified key/value combination if present.
-	Remove(K, V)
+	Remove(K, V) MutableMap[K, V, TKeys, TValues]
 
-	// Replace replaces the given value associated with the specified key only if it is already present. In this case
-	// the old value is returned.
-	Replace(K, V) *V
+	// Replace replaces the given value associated with the specified key only if it is already present.
+	Replace(K, V) MutableMap[K, V, TKeys, TValues]
 }
 
 // ImmutableMap is a map that cannot be changed, but contains helper functions to create a modified copy of the current

@@ -1,6 +1,9 @@
 package stream
 
-import "github.com/apitalist/collections"
+import (
+	"github.com/apitalist/collections"
+	"github.com/apitalist/lang"
+)
 
 func FromCollection[E comparable](c collections.Collection[E]) collections.Stream[E] {
 	input := make(chan E)
@@ -18,7 +21,12 @@ func FromCollection[E comparable](c collections.Collection[E]) collections.Strea
 			close(errorInput)
 		}()
 		for iterator.HasNext() {
-			e, err := iterator.Next()
+			var e E
+			err := lang.Safe(
+				func() {
+					e = iterator.Next()
+				},
+			)
 			if err != nil {
 				select {
 				case errorInput <- err:

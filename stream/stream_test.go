@@ -7,16 +7,13 @@ import (
 )
 
 func Example_allMatch() {
-	allEven, err := stream.
+	allEven := stream.
 		Of(2, 4, 6).
 		AllMatch(
 			func(e int) bool {
 				return e%2 == 0
 			},
 		)
-	if err != nil {
-		panic(err)
-	}
 	if allEven {
 		fmt.Println("All numbers are even.")
 	} else {
@@ -27,16 +24,13 @@ func Example_allMatch() {
 }
 
 func Example_anyMatch() {
-	allEven, err := stream.
+	allEven := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		AnyMatch(
 			func(e int) bool {
 				return e%2 == 0
 			},
 		)
-	if err != nil {
-		panic(err)
-	}
 	if allEven {
 		fmt.Println("There are even numbers in the stream.")
 	} else {
@@ -47,7 +41,7 @@ func Example_anyMatch() {
 }
 
 func Example_filter() {
-	r, err := stream.
+	r := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		Filter(
 			func(e int) bool {
@@ -55,16 +49,13 @@ func Example_filter() {
 			},
 		).
 		ToSlice()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 
 	// Output: [2 4 6]
 }
 
 func Example_toSlice() {
-	r, err := stream.
+	r := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		Filter(
 			func(e int) bool {
@@ -72,16 +63,13 @@ func Example_toSlice() {
 			},
 		).
 		ToSlice()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 
 	// Output: [2 4 6]
 }
 
 func Example_findFirst() {
-	r, err := stream.
+	r := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		Filter(
 			func(e int) bool {
@@ -89,16 +77,13 @@ func Example_findFirst() {
 			},
 		).
 		FindFirst()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 
 	// Output: 2
 }
 
 func Example_findAny() {
-	r, err := stream.
+	r := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		Filter(
 			func(e int) bool {
@@ -106,14 +91,11 @@ func Example_findAny() {
 			},
 		).
 		FindAny()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 }
 
 func Example_count() {
-	r, err := stream.
+	r := stream.
 		Of(1, 2, 3, 4, 5, 6).
 		Filter(
 			func(e int) bool {
@@ -121,9 +103,6 @@ func Example_count() {
 			},
 		).
 		Count()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 
 	// Output: 3
@@ -134,37 +113,30 @@ func Example_map() {
 		Of(1, 2, 3, 4, 5, 6).
 		// The Map stream function is only usable for same-type elements due to Golang restrictions:
 		Map(
-			func(e int) (int, error) {
-				return e * 2, nil
+			func(e int) int {
+				return e * 2
 			},
 		)
 
 	// Use this map function to convert types.
-	r, err := stream.Map(
-		s, func(input int) (string, error) {
-			return fmt.Sprintf("%d", input), nil
+	r := stream.Map(
+		s, func(input int) string {
+			return fmt.Sprintf("%d", input)
 		},
 	).ToSlice()
-
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(r)
 
 	// Output: [2 4 6 8 10 12]
 }
 
 func ExampleMap() {
-	s, err := stream.Map(
+	s := stream.Map(
 		stream.
 			Of(1, 2, 3, 4, 5, 6, 7, 8),
-		func(input int) (string, error) {
-			return fmt.Sprintf("%d", input), nil
+		func(input int) string {
+			return fmt.Sprintf("%d", input)
 		},
 	).ToSlice()
-	if err != nil {
-		panic(err)
-	}
 	fmt.Println(s)
 	// Output: [1 2 3 4 5 6 7 8]
 }

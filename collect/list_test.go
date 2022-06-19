@@ -16,10 +16,7 @@ func ExampleToList() {
 		panic(err)
 	}
 	// Use the list:
-	i, err := l.IndexOf(2)
-	if err != nil {
-		panic(err)
-	}
+	i := l.IndexOf(2)
 	fmt.Println(i)
 
 	// Output: 0

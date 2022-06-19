@@ -51,10 +51,7 @@ func ExampleImmutableSlice_withAddedAt() {
 	s := immutableslice.New("a", "b", "c")
 
 	// Add an item at a specific position. Remember, you need to save the return value.
-	s, err := s.WithAddedAt(1, "d")
-	if err != nil {
-		panic(err)
-	}
+	s = s.WithAddedAt(1, "d")
 
 	fmt.Println(s)
 	// Output: [a, d, b, c]
@@ -84,10 +81,7 @@ func ExampleImmutableSlice_contains() {
 func ExampleImmutableSlice_indexOf() {
 	s := immutableslice.New("a", "b", "c")
 
-	i, err := s.IndexOf("b")
-	if err != nil {
-		panic(err)
-	}
+	i := s.IndexOf("b")
 
 	fmt.Printf("'b' is in position %d\n", i)
 
@@ -112,11 +106,7 @@ func ExampleImmutableSlice_iterator() {
 	iterator := s.Iterator()
 
 	for iterator.HasNext() {
-		e, err := iterator.Next()
-		if err != nil {
-			panic(err)
-		}
-		fmt.Println(e)
+		fmt.Println(iterator.Next())
 	}
 
 	// Output: a
@@ -127,10 +117,7 @@ func ExampleImmutableSlice_iterator() {
 func ExampleImmutableSlice_lastIndexOf() {
 	s := immutableslice.New("a", "b", "c", "b", "a")
 
-	i, err := s.LastIndexOf("b")
-	if err != nil {
-		panic(err)
-	}
+	i := s.LastIndexOf("b")
 
 	fmt.Printf("'b' is last in position %d\n", i)
 
@@ -142,10 +129,7 @@ func ExampleImmutableSlice_withSet() {
 	s := immutableslice.New("a", "b", "c")
 
 	// Set the item at a specific position. Remember, you need to save the return value.
-	s, err := s.WithSet(1, "d")
-	if err != nil {
-		panic(err)
-	}
+	s = s.WithSet(1, "d")
 
 	fmt.Println(s)
 	// Output: [a, d, c]
@@ -195,10 +179,7 @@ func ExampleImmutableSlice_withRemovedAll() {
 func ExampleImmutableSlice_withRemovedAt() {
 	s1 := immutableslice.New("a", "b", "c", "b", "e")
 
-	s1, err := s1.WithRemovedAt(2)
-	if err != nil {
-		panic(err)
-	}
+	s1 = s1.WithRemovedAt(2)
 
 	fmt.Println(s1)
 	// Output: [a, b, b, e]
@@ -230,10 +211,7 @@ func ExampleImmutableSlice_withRetainedAll() {
 func ExampleImmutableSlice_subList() {
 	s1 := immutableslice.New("a", "b", "c", "b", "e")
 
-	s2, err := s1.SubList(2, 4)
-	if err != nil {
-		panic(err)
-	}
+	s2 := s1.SubList(2, 4)
 
 	fmt.Println(s2)
 	// Output: [c, b]
@@ -244,10 +222,7 @@ func ExampleImmutableSlice_get() {
 	s := immutableslice.New("a", "b", "c", "b", "e")
 
 	// Get an item:
-	item, err := s.Get(1)
-	if err != nil {
-		panic(err)
-	}
+	item := s.Get(1)
 	fmt.Println(item)
 
 	// Output: b

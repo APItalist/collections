@@ -7,10 +7,7 @@ import (
 )
 
 func ExampleOf() {
-	result, err := stream.Of(1, 2, 3, 4, 5).ToSlice()
-	if err != nil {
-		panic(err)
-	}
+	result := stream.Of(1, 2, 3, 4, 5).ToSlice()
 	for _, r := range result {
 		fmt.Printf("%d\n", r)
 	}

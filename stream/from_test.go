@@ -10,15 +10,11 @@ import (
 func ExampleFromCollection() {
 	s := slice.New(1, 2, 3, 4, 5, 6)
 
-	s2, err := stream.FromCollection[int](s).Filter(
+	s2 := stream.FromCollection[int](s).Filter(
 		func(e int) bool {
 			return e%2 == 0
 		},
 	).ToSlice()
-
-	if err != nil {
-		panic(err)
-	}
 
 	fmt.Println(s2)
 

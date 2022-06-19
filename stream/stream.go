@@ -4,6 +4,7 @@ import (
 	"sync"
 
 	"github.com/apitalist/collections"
+	"github.com/apitalist/lang"
 )
 
 type stream[T any] struct {
@@ -15,39 +16,42 @@ type stream[T any] struct {
 	errorInput <-chan error
 }
 
-func (s stream[T]) AllMatch(p collections.Predicate[T]) (bool, error) {
+func (s stream[T]) AllMatch(p collections.Predicate[T]) bool {
 	for {
 		select {
 		case item, ok := <-s.input:
 			if !ok {
-				return true, nil
+				return true
 			}
 			if !p(item) {
 				close(s.complete)
-				return false, nil
+				return false
 			}
 		case err, ok := <-s.errorInput:
 			if !ok {
-				return true, nil
+				return true
 			}
-			return false, err
+			panic(err)
 		}
 	}
 }
 
-func (s stream[T]) AnyMatch(p collections.Predicate[T]) (bool, error) {
+func (s stream[T]) AnyMatch(p collections.Predicate[T]) bool {
 	for {
 		select {
 		case item, ok := <-s.input:
 			if !ok {
-				return false, nil
+				return false
 			}
 			if p(item) {
 				close(s.complete)
-				return true, nil
+				return true
 			}
-		case err := <-s.errorInput:
-			return false, err
+		case err, ok := <-s.errorInput:
+			if !ok {
+				return true
+			}
+			panic(err)
 		}
 	}
 }
@@ -101,62 +105,68 @@ func (s *stream[T]) Filter(p collections.Predicate[T]) collections.Stream[T] {
 	return s2
 }
 
-func (s stream[T]) ToSlice() ([]T, error) {
+func (s stream[T]) ToSlice() []T {
 	defer close(s.complete)
 	var result []T
 	for {
 		select {
 		case item, ok := <-s.input:
 			if !ok {
-				return result, nil
+				return result
 			}
 			result = append(result, item)
-		case err := <-s.errorInput:
-			return result, err
+		case err, ok := <-s.errorInput:
+			if !ok {
+				return result
+			}
+			panic(err)
 		}
 	}
 }
 
-func (s stream[T]) FindFirst() (T, error) {
-	var defaultValue T
+func (s stream[T]) FindFirst() T {
 	defer close(s.complete)
 	for {
 		select {
 		case item, ok := <-s.input:
 			if !ok {
-				return defaultValue, nil
+				panic(collections.ErrElementNotFound)
 			}
-			return item, nil
-		case err := <-s.errorInput:
-			return defaultValue, err
+			return item
+		case err, ok := <-s.errorInput:
+			// TODO possible race condition here:
+			if !ok {
+				panic(collections.ErrElementNotFound)
+			}
+			panic(err)
 		}
 	}
 }
 
-func (s stream[T]) FindAny() (T, error) {
+func (s stream[T]) FindAny() T {
 	return s.FindFirst()
 }
 
-func (s stream[T]) Count() (uint, error) {
+func (s stream[T]) Count() uint {
 	defer close(s.complete)
 	count := uint(0)
 	for {
 		select {
 		case _, ok := <-s.input:
 			if !ok {
-				return count, nil
+				return count
 			}
 			count++
 		case err, ok := <-s.errorInput:
 			if !ok {
-				return count, nil
+				return count
 			}
-			return count, err
+			panic(err)
 		}
 	}
 }
 
-func (s *stream[T]) Map(f func(T) (T, error)) collections.Stream[T] {
+func (s *stream[T]) Map(f func(T) T) collections.Stream[T] {
 	output := make(chan T)
 	errorOutput := make(chan error)
 	s2 := &stream[T]{
@@ -193,7 +203,12 @@ func (s *stream[T]) Map(f func(T) (T, error)) collections.Stream[T] {
 					return
 				}
 			}
-			newItem, err := f(e)
+			var newItem T
+			err = lang.Safe(
+				func() {
+					newItem = f(e)
+				},
+			)
 			if err != nil {
 				select {
 				case errorOutput <- err:
@@ -234,17 +249,10 @@ type iterator[T any] struct {
 	finished   bool
 }
 
-func (i *iterator[T]) ForEachRemaining(c collections.Consumer[T]) error {
+func (i *iterator[T]) ForEachRemaining(c collections.Consumer[T]) {
 	for i.HasNext() {
-		item, err := i.Next()
-		if err != nil {
-			return err
-		}
-		if err := c(item); err != nil {
-			return err
-		}
+		c(i.Next())
 	}
-	return nil
 }
 
 func (i *iterator[T]) Close() error {
@@ -287,34 +295,33 @@ func (i *iterator[T]) finish() {
 	}
 }
 
-func (i *iterator[T]) Next() (T, error) {
-	var defaultValue T
+func (i *iterator[T]) Next() T {
 	i.lock.Lock()
 	defer i.lock.Unlock()
 	if i.lastError != nil {
-		return defaultValue, i.lastError
+		panic(i.lastError)
 	}
 	if i.lastItem != nil {
 		item := *i.lastItem
 		i.lastItem = nil
-		return item, nil
+		return item
 	}
 	select {
 	case item, ok := <-i.input:
 		if !ok {
 			i.finish()
-			return defaultValue, collections.ErrIndexOutOfBounds
+			panic(collections.ErrIndexOutOfBounds)
 		}
-		return item, nil
+		return item
 	case err, ok := <-i.errorInput:
 		i.finish()
 		if !ok {
-			return defaultValue, collections.ErrIndexOutOfBounds
+			panic(collections.ErrIndexOutOfBounds)
 		}
 		i.lastError = err
-		return defaultValue, err
+		panic(err)
 	case <-i.complete:
 		i.finish()
-		return defaultValue, collections.ErrIndexOutOfBounds
+		panic(collections.ErrIndexOutOfBounds)
 	}
 }

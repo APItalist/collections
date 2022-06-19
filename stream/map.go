@@ -6,13 +6,14 @@ import (
 	"errors"
 
 	"github.com/apitalist/collections"
+	"github.com/apitalist/lang"
 )
 
 // Map takes an input stream and a mapping function, then uses the mapping function to create an output stream.
 // This is only required until Golang gets support for receiver generic types..
 func Map[TInput, TOutput any](
 	input collections.Stream[TInput],
-	mapper func(TInput) (TOutput, error),
+	mapper func(TInput) TOutput,
 ) collections.Stream[TOutput] {
 	output := make(chan TOutput)
 	errorOutput := make(chan error)
@@ -30,8 +31,11 @@ func Map[TInput, TOutput any](
 		}()
 		for {
 			var e TInput
-			var err error
-			e, err = iterator.Next()
+			err := lang.Safe(
+				func() {
+					e = iterator.Next()
+				},
+			)
 			if err != nil {
 				if !errors.Is(err, collections.ErrIndexOutOfBounds) {
 					select {
@@ -42,7 +46,12 @@ func Map[TInput, TOutput any](
 				}
 				return
 			}
-			item, err := mapper(e)
+			var item TOutput
+			err = lang.Safe(
+				func() {
+					item = mapper(e)
+				},
+			)
 			if err != nil {
 				select {
 				case errorOutput <- err:

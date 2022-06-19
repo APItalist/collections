@@ -17,18 +17,13 @@ func Example_stream() {
 
 	// Map them to strings:
 	s2 := stream.Map(
-		s, func(input int) (string, error) {
-			return fmt.Sprintf("n: %d", input), nil
+		s, func(input int) string {
+			return fmt.Sprintf("n: %d", input)
 		},
 	)
 
 	// Find the first element:
-	firstElement, err := s2.FindFirst()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(firstElement)
+	fmt.Println(s2.FindFirst())
 
 	// Output: n: 2
 }
@@ -42,32 +37,24 @@ func ExampleStream() {
 
 	// Map them to strings:
 	s2 := stream.Map(
-		s, func(input int) (string, error) {
-			return fmt.Sprintf("n: %d", input), nil
+		s, func(input int) string {
+			return fmt.Sprintf("n: %d", input)
 		},
 	)
 
 	// Find the first element:
-	firstElement, err := s2.FindFirst()
-	if err != nil {
-		panic(err)
-	}
-
-	fmt.Println(firstElement)
+	fmt.Println(s2.FindFirst())
 
 	// Output: n: 2
 }
 
 func ExampleStream_lists() {
 	// You can also create streams from lists:
-	r, err := slice.
+	r := slice.
 		New(1, 2, 3, 4).
 		Stream().
 		Filter(func(i int) bool { return i%2 == 0 }).
 		ToSlice()
-	if err != nil {
-		panic(err)
-	}
 
 	fmt.Println(r)
 	// Output: [2 4]
@@ -85,10 +72,7 @@ func ExampleStream_collect() {
 		panic(err)
 	}
 
-	i, err := l.IndexOf(2)
-	if err != nil {
-		panic(err)
-	}
+	i := l.IndexOf(2)
 
 	fmt.Println(i)
 
