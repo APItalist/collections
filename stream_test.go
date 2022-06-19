@@ -62,15 +62,12 @@ func ExampleStream_lists() {
 
 func ExampleStream_collect() {
 	// You can collect the stream output:
-	l, err := collect.ToList(
+	l := collect.ToList(
 		slice.
 			New(1, 2, 3, 4).
 			Stream().
 			Filter(func(i int) bool { return i%2 == 0 }),
 	)
-	if err != nil {
-		panic(err)
-	}
 
 	i := l.IndexOf(2)
 
