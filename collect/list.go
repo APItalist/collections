@@ -6,11 +6,11 @@ import (
 	"github.com/apitalist/collections/slice"
 )
 
-func ToList[T comparable](s collections.Stream[T]) (collections.MutableList[T], error) {
+func ToList[T comparable](s collections.Stream[T]) collections.MutableList[T] {
 	l := slice.New[T]()
 	iterator := s.Iterator()
 	for iterator.HasNext() {
 		l.Add(iterator.Next())
 	}
-	return l, nil
+	return l
 }
