@@ -119,7 +119,7 @@ func (s Slice[E]) Contains(e E) bool {
 }
 
 // Get will return the element at the specified index. If the index is larger than the number of elements, a
-// collections.ErrIndexOutOfBounds is returned.
+// collections.ErrIndexOutOfBounds is thrown in a panic.
 func (s Slice[E]) Get(index uint) E {
 	if index >= uint(len(s)) {
 		panic(collections.ErrIndexOutOfBounds)
@@ -128,7 +128,7 @@ func (s Slice[E]) Get(index uint) E {
 }
 
 // IndexOf returns the index of the first element that matches the specified element. If no element is found,
-// a collections.ErrElementNotFound is returned.
+// a collections.ErrElementNotFound is thrown in a panic.
 func (s Slice[E]) IndexOf(e E) uint {
 	for i, elem := range s {
 		if elem == e {
@@ -139,7 +139,7 @@ func (s Slice[E]) IndexOf(e E) uint {
 }
 
 // LastIndexOf returns the index of the last element that matches the specified element. If no element is found,
-// a collections.ErrElementNotFound is returned.
+// a collections.ErrElementNotFound is thrown in a panic.
 func (s Slice[E]) LastIndexOf(e E) uint {
 	for i := len(s) - 1; i >= 0; i-- {
 		elem := s[i]
@@ -151,7 +151,7 @@ func (s Slice[E]) LastIndexOf(e E) uint {
 }
 
 // SubList will return a part of the current Slice. If the specified bounds are invalid, a
-// collections.ErrIndexOutOfBounds is returned.
+// collections.ErrIndexOutOfBounds is thrown in a panic.
 func (s Slice[E]) SubList(from, to uint) collections.MutableList[E] {
 	if from > to {
 		panic(collections.ErrIndexOutOfBounds)
@@ -226,6 +226,8 @@ func (s *Slice[E]) AddAt(index uint, element E) collections.MutableList[E] {
 	return s
 }
 
+// Set sets the element at index to the specified value. If the specified index is not found, an ErrIndexOutOfBounds
+// is thrown in a panic.
 func (s *Slice[E]) Set(index uint, element E) collections.MutableList[E] {
 	if index >= uint(len(*s)) {
 		panic(collections.ErrIndexOutOfBounds)
@@ -234,6 +236,7 @@ func (s *Slice[E]) Set(index uint, element E) collections.MutableList[E] {
 	return s
 }
 
+// Sort sorts the slice according to the comparator passed as the argument.
 func (s *Slice[E]) Sort(f collections.Comparator[E]) collections.MutableList[E] {
 	sort.SliceStable(
 		*s, func(i, j int) bool {
@@ -243,6 +246,7 @@ func (s *Slice[E]) Sort(f collections.Comparator[E]) collections.MutableList[E] 
 	return s
 }
 
+// String creates a printable string with brackets and comma-delimiters from the current slice.
 func (s Slice[E]) String() string {
 	result := make([]string, len(s))
 	for i, e := range s {
@@ -287,15 +291,6 @@ func (s *Iterator[E]) Next() E {
 	}
 	s.index++
 	return (*s.backingSlice)[s.index]
-}
-
-// Set sets the current element in the underlying Slice. If the iterator currently doesn't point to a valid element,
-// for example Next() hasn't been called yet, a collections.ErrIndexOutOfBounds is returned.
-func (s *Iterator[E]) Set(e E) {
-	if s.index >= len(*s.backingSlice) {
-		panic(collections.ErrIndexOutOfBounds)
-	}
-	(*s.backingSlice)[s.index] = e
 }
 
 // Remove removes the current element from the underlying Slice.

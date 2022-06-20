@@ -77,6 +77,7 @@ type ImmutableList[E comparable] interface {
 	WithSorted(Comparator[E]) ImmutableList[E]
 
 	// WithRemovedAt returns a new list with the item at the specified index removed. The current list remains unchanged
-	// in the process. If the specified index is after the end of the index, an ErrIndexOutOfBounds is thown in a panic.
+	// in the process. If the specified index is after the end of the index, an ErrIndexOutOfBounds is thrown in a
+	// panic.
 	WithRemovedAt(index uint) ImmutableList[E]
 }

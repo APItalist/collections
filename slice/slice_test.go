@@ -445,18 +445,3 @@ func ExampleIterator_Remove() {
 
 	// Output: [a, c]
 }
-
-func ExampleIterator_Set() {
-	list := slice.New[string]("a", "b", "c")
-
-	iterator := list.MutableIterator()
-	for iterator.HasNext() {
-		item := iterator.Next()
-		if item == "b" {
-			iterator.Set("d")
-		}
-	}
-	fmt.Println(list)
-
-	// Output: [a, d, c]
-}

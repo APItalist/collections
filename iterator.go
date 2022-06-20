@@ -40,10 +40,7 @@ type Iterator[T any] interface {
 // MutableIterator extends on the Iterator interface by adding methods to modify the underlying data structure.
 type MutableIterator[T any] interface {
 	Iterator[T]
-
-	// Set changes the current element to the specified value. Throws an ErrIndexOutOfBounds in a panic if the current
-	// iterator does not point to a valid element (e.g. before calling Next())
-	Set(T)
+	
 	// Remove removes the current element. Throws an ErrIndexOutOfBounds in a panic if the current iterator does not
 	// point to a valid element (e.g. before calling Next()).
 	Remove()
